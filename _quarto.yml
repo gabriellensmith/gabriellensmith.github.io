@@ -3,17 +3,22 @@ project:
   output-dir: docs 
 
 website:
-  title: "gabriellensmith.github.io"
+  title: "gabrielle smith"
   navbar:
     left:
       - href: index.qmd
-        text: Home
+        text: home
       - about.qmd
+      - href: GS_CV.pdf
+        text: cv
+      - icon: github
+        href: https://github.com/gabriellensmith
 
 format:
   html:
-    theme: morph
-    css: styles.css
+    theme:
+      - mystyles.scss
+    mainfont: Alkalami
     toc: true
 
 editor: visual
