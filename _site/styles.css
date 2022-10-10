@@ -1,1 +1,5 @@
 /* css styles */
+* {
+  color: green;
+  font-style: italic;
+}

@@ -1,15 +1,15 @@
 ---
-title: "Gabrielle Smith"
-image: headshot.jpg
+title: "gabrielle smith"
+image: headshot.jpeg
 about:
   template: marquee
   image-shape: rounded
   image-width: 15em
   links: 
-    - text: GitHub
+    - icon: github
+      text: GitHub
       href: https://github.com/gabriellensmith
-    - text: Email
-      href: gabriellesmith@ucsb.edu
+    - icon: envelope
+      text: Email
+      href: mailto:gabriellesmith@ucsb.edu
 ---
-
-Welcome!

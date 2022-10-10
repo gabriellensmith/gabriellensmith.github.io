@@ -1,0 +1,19 @@
+/*-- scss:defaults --*/
+
+//Colors 
+$dark-green: #6b876b;
+$med-green: #8bad8b;
+$light-blue: #d8e6d8;
+$cream: #f2f0df;
+
+// Base Document Colors
+$body-bg: $light-blue;
+$navbar-bg: $med-green;
+$link-color: $dark-green;
+$navbar-fg: $dark-green;
+
+// Inline code 
+$code-bg: $dark-green;
+
+// Fonts 
+@import url('https://fonts.googleapis.com/css2?family=Alkalami&display=swap');
