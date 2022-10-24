@@ -1,0 +1,17 @@
+---
+title: 'practice post'
+description: 'this is a description'
+author:
+  - name: Gabrielle Smith 
+    url: https://gabriellensmith.github.io
+    affiliation: MEDS
+    affiliation-url: https://ucsb-meds.github.io
+date: 2022-10-24
+catergories: [MEDS, test, R]
+citation: 
+  url: https://gabriellensmith.github.io/posts/2022-10-24-classexample/
+#image: 
+draft: true 
+---
+
+This is my class example blog post 
