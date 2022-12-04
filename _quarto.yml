@@ -10,7 +10,7 @@ website:
         text: home
       - about.qmd
       - href: posts.qmd
-        text: "blog"
+        text: posts
       - href: GS_CV.pdf
         text: cv
       - icon: github
