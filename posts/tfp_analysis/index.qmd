@@ -93,7 +93,7 @@ tab_model(model2,
           digits = 7)
 ```
 
-The model regression indicates that capital is not a significant predictor variable (p = 0.117); however, all other predictor variables are found to be significant at the 0.05 level (p \< 0.05 for all remaining variables). Given that the interaction between land and capital variables is significant (p \< 0.001), we opt to preserve capital as a predictor variable in spite of its insignificant predictive power. It is relevant to note that the model summary values are based off of a log-transformed model - for interpretability of these results, it is recommended an inverse transformation be performed on the model estimates. In spite of this, given the signs of the estimates, it can be concluded that labor and capital inputs are negatively correlated with TFP, while land and land/capital interaction inputs are positively correlated with TFP. The overall prediction power of the model is low (evidenced by adjusted r-squared = 0.075), which suggests that it is not well equipped to accurately predict TFP variability.
+The model regression indicates that capital is not a significant predictor variable (p = 0.117); however, all other predictor variables are found to be significant at the 0.05 level (p \< 0.001 for all remaining variables). Given that the interaction between land and capital variables is significant (p \< 0.001), we opt to preserve capital as a predictor variable in spite of its insignificant predictive power. It is relevant to note that the model summary values are based off of a log-transformed model - for interpretability of these results, it is recommended an inverse transformation be performed on the model estimates. In spite of this, given the signs of the estimates, it can be concluded that labor and capital inputs are negatively correlated with TFP, while land and land/capital interaction inputs are positively correlated with TFP. The overall prediction power of the model is low (evidenced by adjusted r-squared = 0.075), which suggests that it is not well equipped to accurately predict TFP variability.
 
 #### Differences in Means for Varying World Economies
 
@@ -120,7 +120,7 @@ The null hypothesis: $$H_0: \mu_{low}=\mu_{mid-low} = \mu_{mid-high} = \mu_{high
 
 The alternative hypothesis:
 
-H~A~: mean TFP indices are not equal across all income classes
+                     H~A~: mean TFP indices are not equal across all income classes
 
 ```{r}
 income_k <- kruskal_test(tfp_index ~ income, data = tfp_income)
@@ -202,17 +202,15 @@ The time series forecasting of TFP indices exhibits predicted increases in globa
 
 ### Further Research
 
-It is likely that a stronger linear model could be produced through inclusion of detailed data on land, labor, material, and capital inputs rather than the summative indexes that this analysis employs. Furthermore, some of the residuals of the automated predictive models appear to be significant beyond the randomness of white noise (see supporting figures), which implies potential to produce a more accurate forecasting model.
+It is likely that a stronger linear model could be produced through inclusion of detailed data on land, labor, material, and capital inputs rather than the summative indexes that this analysis employs. Under the current model, only 7.5% of variation in global TFP is explained by the model's input variables. Furthermore, some of the residuals of the automated predictive models appear to be significant beyond the randomness of white noise (see supporting figures), which implies potential to produce a more accurate forecasting model.
 
 As it relates to individual country policy prioritization, best fitting models will employ data particular to the country of interest rather than at global or economic class scales. 
 
-Finally, current measures of TFP do not factor environmental impacts. Growing productivity rates ease the demand for agricultural enabling resources, which lessens pressure on finite environmental reserves. However, higher productivity can also result in higher externalities that negatively impact the environment. The [Network on Agricultural TFP and the Environment](https://www.oecd.org/agriculture/topics/network-agricultural-productivity-and-environment/), launched in 2017, aims to develop a framework for cross-country agricultural TFP comparisons to help adrress this issue[^1].
+Finally, current measures of TFP do not factor environmental impacts. Growing productivity rates ease the demand for agricultural enabling resources, which lessens pressure on finite environmental reserves; however, higher productivity can also result in higher externalities that negatively impact the environment. The [Network on Agricultural TFP and the Environment](https://www.oecd.org/agriculture/topics/network-agricultural-productivity-and-environment/), launched in 2017, aims to develop a framework for cross-country agricultural TFP comparisons to help adrress this issue[^1].
 
 ### Conclusion
 
 This analysis lends itself to understanding how policy priorities can be shaped to maximize agricultural TFP growth through individual inputs, and examines the differences of this index across various levels of economic class.
-
-### References
 
 [^1]: Network on Agricultural Total Factor Productivity and the Environment. Oecd.org. Accessed December 4, 2022. https://www.oecd.org/agriculture/topics/network-agricultural-productivity-and-environment/
 [^2]: Fuglie K, Jelliffe J, Morgan S. Documentation and methods. Usda.gov. Published October 7, 2022. Accessed December 4, 2022. https://www.ers.usda.gov/data-products/international-agricultural-productivity/documentation-and-methods/
