@@ -12,6 +12,7 @@ library(gplots)
 library(multcomp)
 library(sna)
 library(kableExtra)
+library(GGally)
 #full data
 tfp_all <- read_excel("~/EDS222/EDS222Final/AgTFPInternational2020_long.xlsx", sheet = 2) |>
   clean_names()
