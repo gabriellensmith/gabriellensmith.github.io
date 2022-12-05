@@ -76,7 +76,7 @@ tfp_country_plot <- ggplot(data=tfp_country_p) +
   labs(y = 'TFP Index', x = 'Year', title = 'Total Factor Production Indices for Varying Economy Classes (1961-2020)') +
   scale_x_discrete(breaks = scales::pretty_breaks(n=10)) +
   scale_color_discrete(name = 'Income Class')
-tfp_country_plot
+
 ggplotly(tfp_country_plot)
 ```
 
