@@ -23,7 +23,9 @@ source("~/Website/gabriellensmith.github.io/posts/tfp_analysis/tfp_code.R", loca
 
 ### Introduction
 
-The agricultural sector faces opposing pressures of sustaining a growing population while minimizing its unfavorable environmental outcomes[^1]. In an effort to simultaneously move towards these goals, countries around the world have prioritized agricultural productivity. One of the most informative measures of agricultural productivity is total factor productivity (TFP). TFP compares gross outputs of crop, animal and aquaculture products to inputs of land, labor, capital and material resources utilized in farm production[^2]. As gross output increases at a faster rate than total inputs, total factor production improves, which eases tensions on environmental resources and food security, and boosts economic growth[^3].
+The agricultural sector faces opposing pressures of sustaining a growing population while minimizing its unfavorable environmental outcomes[^1]. In an effort to simultaneously move towards these goals, countries around the world have prioritized agricultural productivity. One of the most informative measures of agricultural productivity is total factor productivity (TFP). TFP compares gross outputs of crop, animal and aquaculture products to inputs of land, labor, capital and material resources utilized in farm production[^2]. As gross output increases at a faster rate than total inputs, total factor production improves, which eases tensions on environmental resources and food security, and boosts economic growth[^3]. TFP is expressed generally by the equation:
+$$TFP=Y/X$$
+where Y represents gross output and X represents total inputs. 
 
 [^1]: Network on Agricultural Total Factor Productivity and the Environment. Oecd.org. Accessed December 4, 2022. https://www.oecd.org/agriculture/topics/network-agricultural-productivity-and-environment/
 
@@ -122,15 +124,15 @@ Reduced model: $$TFP = \beta_0 + \beta_1*land_i + \beta_2*capital_i + \beta_3*la
 
 The r-squared, adjusted r-squared, and Mallow's Cp values of the leaps procedure affirm that this model is optimal in predictive accuracy. A pairwise analysis of the reduced predictor variables suggests that there may be significant variable interactions. A second stepwise regression is performed with a full linear model containing all interactions between refined predictor variables, which suggests that there is a significant interaction between land and capital inputs. Therefore, we include this interaction term in the refined model.
 
-Full model: $$TFP = \beta_0 + \beta_1*land_i + \beta_2*capital_i + \beta_3*labor_i  + \beta_4*land_i:capital_i + \beta_5*land_i:labor_i + \beta_6*capital_i:labor_i + \varepsilon_i$$
+Full model: $$TFP = \beta_0 + \beta_1*land_i + \beta_2*capital_i + \beta_3*labor_i  + \beta_4*land_i:capital_i + \beta_5*land_i:labor_i + \beta_6*land_i:capital_i + \varepsilon_i$$
 
-Reduced model: $$TFP = \beta_0 + \beta_1*land_i + \beta_2*capital_i + \beta_3*labor_i + \beta_4 * land_i:labor_i + \varepsilon_i$$
+Reduced model: $$TFP = \beta_0 + \beta_1*land_i + \beta_2*capital_i + \beta_3*labor_i + \beta_4 * land_i:capital_i + \varepsilon_i$$
 
 The Normal Q-Q plot of the residuals evidences slight non-normality. A log transformation of the response variable, TFP, is performed for normalization.
 
 A summary of the updated model is evaluated. A Residuals vs. Fitted plot displays a roughly even spread of residuals around the zero line, which suggests that equal variance and linearity assumptions are satisfied. A Normal Q-Q plot suggests normality given its relative linearity. Therefore, we accept the reduced and transformed model as a final model.
 
-The final model is given by: $$log(TFP) = \beta_0 + \beta_1*land_i + \beta_2*capital_i + \beta_3*labor_i + \beta_4 * land_i:labor_i + \varepsilon_i$$
+The final model is given by: $$log(TFP) = \beta_0 + \beta_1*land_i + \beta_2*capital_i + \beta_3*labor_i + \beta_4 * land_i:capital_i + \varepsilon_i$$
 
 ```{r}
 tab_model(model2, 
@@ -177,7 +179,6 @@ H~A~: mean TFP indices are not equal across all income classes
 income_k <- kruskal_test(tfp_index ~ income, data = tfp_income)
 tab_df(income_k)
   
-
 income_pairs_d <- dunn_test(tfp_index ~ income, data = tfp_income, p.adjust.method = 'bonferroni')
 
 income_pairs_d <- income_pairs_d |> 
