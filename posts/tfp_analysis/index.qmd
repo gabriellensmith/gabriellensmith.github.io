@@ -58,12 +58,12 @@ tfp_all <- read_excel("~/EDS222/EDS222Final/AgTFPInternational2020_long.xlsx", s
 
 #world data
 tfp_world <- tfp_all |> 
-  filter(level == 'World')
+  filter(level == 'World') 
 
 #economic income class TFP plot  
 tfp_country_p <- tfp_all |> 
   filter(level == 'Country',
-         income %in% c('LI', 'MI-L', 'MI-U', 'HI')) |> 
+         income %in% c('HI', 'MI-U', 'MI-L', 'LI')) |> 
   select(year, tfp_index, income) |> 
   group_by(income, year) |> 
   summarize_all(mean, na.rm = TRUE)
@@ -73,11 +73,41 @@ tfp_country_p$income <- factor(tfp_country_p$income, levels = c('HI', 'MI-U', 'M
 tfp_country_plot <- ggplot(data=tfp_country_p) +
   geom_line(aes(x=year, y=tfp_index, group=income, color=income), alpha = 0.5) + 
   theme_minimal() +
-  labs(y = 'TFP Index', x = 'Year', title = 'Total Factor Production Indices for Varying Economy Classes (1961-2020)') +
+  labs(y = 'TFP Index', x = 'Year') +
   scale_x_discrete(breaks = scales::pretty_breaks(n=10)) +
-  scale_color_discrete(name = 'Income Class')
+  scale_color_discrete(name = 'Income Class') +
+  theme(plot.title = element_text(hjust = 0.5))
 
-ggplotly(tfp_country_plot)
+tfp_world_plot <- ggplot(data = tfp_world) + 
+  geom_line(aes(x=year, y=tfp_index, group = 1)) + 
+  labs(y = 'TFP Index') +
+  theme_minimal()  +
+  scale_x_discrete(breaks = scales::pretty_breaks(n=10)) 
+
+subplot(tfp_world_plot, tfp_country_plot, nrows = 2, shareX = TRUE, shareY= TRUE) |> 
+          layout(title = list(text = 'Fig 1. Total Factor Production Indices (1961-2020)', font = list(size = 12)), xaxis = list(x = 0.5,  
+    y = 0,  
+    text = "Income Class Grouped",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE),
+                 annotations = list(list(x = 0.03,  
+    y = 0.95,  
+    text = "Global",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE) , list(x = 0.13,  
+    y = 0.4,  
+    text = "Income Class Grouped",  
+    xref = "paper",  
+    yref = "paper",  
+    xanchor = "center",  
+    yanchor = "bottom",  
+    showarrow = FALSE)))
 ```
 
 ### Analysis
@@ -109,7 +139,7 @@ tab_model(model2,
           dv.labels = 'Log Total Factor Production',
           string.ci = '95% Conf. Interval',
           string.p = 'P-value',
-          title = 'Transformed Linear Model Results for TFP Regression',
+          title = 'Tbl 1. Transformed Linear Model Results for TFP Regression',
           digits = 7)
 ```
 
@@ -130,7 +160,7 @@ violin_plot <- ggviolin(tfp_income, x='income', y='tfp_index', fill = 'income',
          ylab = 'TFP Index', xlab = 'Income Class',
          draw_quantiles = 0.5, add = 'boxplot') 
 ggpar(violin_plot, legend.title = 'Income Class', xlab = '',
-      caption = 'Distribution of TFP Indices for Varying Income Levels',
+      caption = 'Fig 2. Distribution of TFP Indices for Varying Income Classes',
       ggtheme = theme_minimal())
 ```
 
@@ -149,14 +179,17 @@ tab_df(income_k)
   
 
 income_pairs_d <- dunn_test(tfp_index ~ income, data = tfp_income, p.adjust.method = 'bonferroni')
+
 income_pairs_d <- income_pairs_d |> 
   add_xy_position(x = 'income') 
 ggboxplot(tfp_income, x = 'income', y = 'tfp_index',
           order = c('LI', 'MI-L', 'MI-U', 'HI')) +
   stat_pvalue_manual(income_pairs_d, hide.ns = TRUE) +
-  labs(subtitle = get_test_label(income_k, detailed = TRUE),
-caption = get_pwc_label(income_pairs_d),
-y = 'TFP Index', x = 'Income Level')
+  labs(title = get_test_label(income_k, detailed = TRUE),
+subtitle = get_pwc_label(income_pairs_d),
+caption = 'Figure 3. Mean difference testing \n for TFP in varying income classes',
+y = 'TFP Index', x = 'Income Level') +
+  theme()
 ```
 
 The Kruskal-Wallis test (p=4.42e-72$$\approx$$`<!-- -->`{=html}0) rejects the null hypothesis; there is significant evidence to suggest that there is a difference in mean TFP indices between differing income classes. The Dunn test indicates that this difference is statistically significant between all income class pairings.
@@ -180,9 +213,7 @@ pred.tr <- predict(fit, n.ahead=10)
 U.tr <- pred.tr$pred + 2*pred.tr$se
 L.tr <- pred.tr$pred - 2*pred.tr$se
 ts.plot(ts, xlim=c(0,length(ts)+12), ylim=c(min(ts),max(ts)+20))
-title(main = 'Forecasted TFP Indices for Global Data',
-      sub = 'Forecasts for ARIMA(2,2,1) Model with 95% Confidence Intervals',
-      cex.sub = 0.75)
+title(main = 'Forecasted TFP Indices for Global Data', sub = 'Fig 4. Forecasts for ARIMA(2,2,1) Model with 95% Confidence Intervals', cex.sub = 0.65)
 legend('topleft', inset = 0.02,
        legend = c('Forecast', '95% CI'),
        col = c('red', 'blue'),
@@ -203,7 +234,7 @@ year <- c(2021, 2022, 2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030)
 predictions <- data.frame(year, pred.li$pred, pred.mil$pred, pred.mi$pred, pred.hi$pred, pred.tr$pred) 
 colnames(predictions) <- c('Year', 'Low Income', 'Lower-Middle Income', 'Upper-Middle Income', 'High Income', 'World')
 predictions |> 
-  kbl(caption = 'Predicted TFP Indices') |> 
+  kbl(caption = 'Tbl 2. Predicted TFP Indices') |> 
   kable_styling(bootstrap_options = 'striped', full_width = F)
 ```
 
@@ -269,7 +300,7 @@ summary_mod$rsq
 summary_mod$adjr2
 
 #pairwise analysis
-pairs(cbind(x1,x2,x3))
+pairs(cbind(x1,x2,x3), main = 'Pairwise Analysis of Reduced TFP Regression Variables', labels = c('Land', 'Labor', 'Capital'))
 
 #stepwise regression
 mod_upper1 <- lm(y~x1+x2+x3+x1*x2+x1*x3+x1*x3)
@@ -286,7 +317,7 @@ title(main = 'Fitted vs. Residuals for non-transformed linear model')
 qqnorm(residuals(model1))
 qqline(residuals(model1))
 #histogram of non-transformed response variable (TFP) distribution
-hist(y, main = 'Distribution of TFP', xlab = 'TFP')
+hist(y, main = 'Distribution of non-transformed TFP response variable', xlab = 'TFP')
 ```
 
 ```{r}
@@ -296,7 +327,7 @@ model2 <- lm(log(y) ~ x1+x2+x3+x2:x1)
 #fitted vs. residuals checking for log transformed model 
 plot(fitted(model2),residuals(model2))
 abline(h=0)
-title(main = 'Fitted vs. Residuals for log transformed linear model')
+title(main = 'Fitted vs. Residuals for log-transformed model')
 #normal qqplot for log transformed model
 qqnorm(residuals(model2))
 qqline(residuals(model2))
