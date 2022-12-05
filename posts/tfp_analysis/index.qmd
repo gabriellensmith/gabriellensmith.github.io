@@ -73,7 +73,7 @@ tfp_country_p$income <- factor(tfp_country_p$income, levels = c('HI', 'MI-U', 'M
 tfp_country_plot <- ggplot(data=tfp_country_p) +
   geom_line(aes(x=year, y=tfp_index, group=income, color=income), alpha = 0.5) + 
   theme_minimal() +
-  labs(y = 'TFP Index', x = 'Year', title = 'Total Factor Production Indices for Varying Economy Classes (1961-2020)') +
+  labs(y = 'TFP Index', x = 'Year', title = 'Total Factor Production Indices for Varying Income Classes (1961-2020)') +
   scale_x_discrete(breaks = scales::pretty_breaks(n=10)) +
   scale_color_discrete(name = 'Income Class')
 
