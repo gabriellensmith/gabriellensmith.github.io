@@ -1,5 +1,5 @@
 ---
-title: "Agriculture Total Factor Productivity Growth in Our World’s Economies"
+title: "Agriculture Total Factor Productivity Growth in Global Income Classes"
 description: "A statistical analysis of agriculture total factor productivity indices on global and income class scales, employing methods of multiple linear regression, mean testing, and time series forecasting."
 author:
   - name: Gabrielle Smith
@@ -23,7 +23,7 @@ source("~/Website/gabriellensmith.github.io/posts/tfp_analysis/tfp_code.R", loca
 
 ### Introduction
 
-The agricultural sector faces opposing pressures of sustaining a growing population while minimizing its unfavorable environmental outcomes[^1]. In an effort to simultaneously move towards these goals, countries around the world have prioritized agricultural productivity. One of the most informative measures of agricultural productivity is total factor productivity (TFP). TFP compares gross outputs of crop, animal and aquaculture products to inputs of land, labor, capital and material resources utilized in farm production[^2]. As gross output increases at a faster rate than total inputs, total factor production improves, which eases tensions on environmental resources and food security, and boosts economic growth[^3]. TFP is expressed generally by the equation:
+The agricultural sector faces opposing pressures of sustaining a growing population while minimizing its unfavorable outcomes on finite environmental resources[^1]. In an effort to simultaneously move towards these goals, countries around the world have prioritized agricultural productivity. One of the most informative measures of agricultural productivity is total factor productivity (TFP). TFP compares gross outputs of crop, animal and aquaculture products to inputs of land, labor, capital and material resources utilized in farm production[^2]. As gross output increases at a faster rate than total inputs, total factor production improves, which eases tensions on environmental resources and food security, and boosts economic growth[^3]. TFP is expressed generally by the equation:
 $$TFP=Y/X$$
 where Y represents gross output and X represents total inputs. 
 
