@@ -45,7 +45,7 @@ Additionally, it will examine TFP growth rates for country groupings of income c
 
 All relevant analysis outputs are included in the Analysis section - for detailed code concerning model checking, reference the Model Testing and Supporting Figures section.
 
-### Data
+### Data 
 
 Data used in this analysis is sourced from the United States Department of Agriculture's (USDA) Economic Research Services[^5]. This data is publicly available [here](https://www.ers.usda.gov/data-products/international-agricultural-productivity/). Data files contain annual indices for agricultural TFP, outputs, and inputs for individual countries, major global regions, and countries grouped by income levels for years 1961-2020. Detailed data on land, labor, capital and material inputs used to construct TFP indices is also included, but are not contained in the subsetted data used for the purposes of this particular analysis. TFPs are indexed with a base year of 2015 such that TFP values for countries and regions are set to 100 in 2015.
 
@@ -128,9 +128,12 @@ The Normal Q-Q plot of the residuals evidences slight non-normality. A log trans
 
 A summary of the updated model is evaluated. A Residuals vs. Fitted plot displays a roughly even spread of residuals around the zero line, which suggests that equal variance and linearity assumptions are satisfied. A Normal Q-Q plot suggests normality given its relative linearity. Therefore, we accept the reduced and transformed model as a final model.
 
-The final model is given by: $$log(TFP) = \beta_0 + \beta_1*land_i + \beta_2*labor_i + \beta_3*capital_i + \beta_4 * land_i:capital_i + \varepsilon_i$$
+Accepted model: $$log(TFP) = \beta_0 + \beta_1*land_i + \beta_2*labor_i + \beta_3*capital_i + \beta_4 * land_i:capital_i + \varepsilon_i$$
 
 ```{r}
+#multiple regression model
+model2 <- lm(log(y) ~ x1+x2+x3+x2:x1)
+
 #summary table for linear regression
 tab_model(model2, 
           pred.labels = c('Intercept', 'Land',
@@ -142,6 +145,8 @@ tab_model(model2,
           digits = 7)
 ```
 
+Given coefficient estimates of our performed regression, the final model is represented as:
+$$log(TFP) = 4.515429 + 0.0008662*land_i - 0.0019178*labor_i - 0.0000779*capital_i + \\ 0.0000062 * land_i:capital_i + \varepsilon_i$$
 The model regression indicates that capital is not a significant predictor variable (p = 0.117); however, all other predictor variables are found to be significant at the 0.05 level (p \< 0.001 for all remaining variables). Given that the interaction between land and capital variables is significant (p \< 0.001), we opt to preserve capital as a predictor variable in spite of its insignificant predictive power. It is relevant to note that the model summary values are based off of a log-transformed model - for interpretability of these results, it is recommended an inverse transformation be performed on the model estimates. In spite of this, given the signs of the estimates, it can be noted that labor and capital inputs are negatively correlated with TFP, while land and land/capital interaction inputs are positively correlated with TFP. The overall predictive power of the model is low (evidenced by adjusted r-squared = 0.075), which suggests that it is not well equipped to accurately predict TFP variability.
 
 #### Differences in Means for Varying World Economies
