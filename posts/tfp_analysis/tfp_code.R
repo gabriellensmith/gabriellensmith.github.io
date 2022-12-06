@@ -12,7 +12,6 @@ library(gplots)
 library(multcomp)
 library(sna)
 library(kableExtra)
-library(GGally)
 #full data
 tfp_all <- read_excel("~/EDS222/EDS222Final/AgTFPInternational2020_long.xlsx", sheet = 2) |>
   clean_names()
@@ -116,18 +115,18 @@ ggviolin(tfp_income, x='income', y='tfp_index', color = 'income',
          ylab = 'TFP Index', xlab = 'Income Class',
          draw_quantiles = 0.5, add = 'boxplot')
 
-income_k <- kruskal_test(tfp_index ~ income, data = tfp_income)
-table(income_k)
+# income_k <- kruskal.test(tfp_index ~ income, data = tfp_income)
+# table(income_k)
 
-income_pairs_d <- dunn_test(tfp_index ~ income, data = tfp_income, p.adjust.method = 'bonferroni')
-income_pairs_d <- income_pairs_d |> 
-  add_xy_position(x = 'income') 
-ggboxplot(tfp_income, x = 'income', y = 'tfp_index',
-          order = c('LI', 'MI-L', 'MI-U', 'HI')) +
-  stat_pvalue_manual(income_pairs_d, hide.ns = TRUE) +
-  labs(subtitle = get_test_label(income_k, detailed = TRUE),
-       caption = get_pwc_label(income_pairs_d),
-       y = 'TFP Index', x = 'Income Level') 
+# income_pairs_d <- dunn_test(tfp_index ~ income, data = tfp_income, p.adjust.method = 'bonferroni')
+# income_pairs_d <- income_pairs_d |> 
+#   add_xy_position(x = 'income') 
+# ggboxplot(tfp_income, x = 'income', y = 'tfp_index',
+#           order = c('LI', 'MI-L', 'MI-U', 'HI')) +
+#   stat_pvalue_manual(income_pairs_d, hide.ns = TRUE) +
+#   labs(subtitle = get_test_label(income_k, detailed = TRUE),
+#        caption = get_pwc_label(income_pairs_d),
+#        y = 'TFP Index', x = 'Income Level') 
 
 library(lessR)
 library(tsibble)

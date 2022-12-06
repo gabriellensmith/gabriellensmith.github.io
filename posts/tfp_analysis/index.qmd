@@ -1,6 +1,6 @@
 ---
 title: "Agriculture Total Factor Productivity Growth in Our World’s Economies"
-description: "A statistical analysis of agriculture total factor productivity indices on global and income class scales, employing methods of linear regression, means testing, and time series forecasting."
+description: "A statistical analysis of agriculture total factor productivity indices on global and income class scales, employing methods of multiple linear regression, mean testing, and time series forecasting."
 author:
   - name: Gabrielle Smith
     url: https://gabriellensmith.github.io
@@ -110,7 +110,7 @@ subplot(tfp_world_plot, tfp_country_plot, nrows = 2, shareX = TRUE, shareY= TRUE
 
 ### Analysis
 
-#### Linear Regression
+#### Multiple Linear Regression
 
 A stepwise regression is performed to compare a linear model containing no predictors to a full linear model containing all input variables (land, labor, capital, and materials). The results of this regression suggest that materials are not a relevant predictor in estimating TFP. Consequently, we opt for a model containing three predictor variables: land, labor, capital.
 
@@ -142,7 +142,7 @@ tab_model(model2,
           digits = 7)
 ```
 
-The model regression indicates that capital is not a significant predictor variable (p = 0.117); however, all other predictor variables are found to be significant at the 0.05 level (p \< 0.001 for all remaining variables). Given that the interaction between land and capital variables is significant (p \< 0.001), we opt to preserve capital as a predictor variable in spite of its insignificant predictive power. It is relevant to note that the model summary values are based off of a log-transformed model - for interpretability of these results, it is recommended an inverse transformation be performed on the model estimates. In spite of this, given the signs of the estimates, it can be noted that labor and capital inputs are negatively correlated with TFP, while land and land/capital interaction inputs are positively correlated with TFP. The overall prediction power of the model is low (evidenced by adjusted r-squared = 0.075), which suggests that it is not well equipped to accurately predict TFP variability.
+The model regression indicates that capital is not a significant predictor variable (p = 0.117); however, all other predictor variables are found to be significant at the 0.05 level (p \< 0.001 for all remaining variables). Given that the interaction between land and capital variables is significant (p \< 0.001), we opt to preserve capital as a predictor variable in spite of its insignificant predictive power. It is relevant to note that the model summary values are based off of a log-transformed model - for interpretability of these results, it is recommended an inverse transformation be performed on the model estimates. In spite of this, given the signs of the estimates, it can be noted that labor and capital inputs are negatively correlated with TFP, while land and land/capital interaction inputs are positively correlated with TFP. The overall predictive power of the model is low (evidenced by adjusted r-squared = 0.075), which suggests that it is not well equipped to accurately predict TFP variability.
 
 #### Differences in Means for Varying World Economies
 
@@ -192,7 +192,7 @@ y = 'TFP Index', x = 'Income Level') +
   theme()
 ```
 
-The Kruskal-Wallis test (p<0.0001) rejects the null hypothesis; there is significant evidence to suggest that there is a difference in mean TFP indices between differing income classes. The Dunn test concludes that this difference is statistically significant between all income class pairings, indicated by significance asterisks of the above figure.
+The Kruskal-Wallis test (p<0.0001) rejects the null hypothesis; there is significant evidence to suggest that there is a difference in mean TFP indices between differing income classes. The Dunn test concludes that this difference is statistically significant between all income class pairings, indicated by significance asterisks of the above. We use this information primarily to validate the productivity of forecasting TFP growth at income class scales as opposed to globally, rather than for the purpose of directly comparing mean differences, since dataset indexing invalidates the capacity for direct productivity comparisons between groups. 
 
 #### TFP Growth Forecasting
 
