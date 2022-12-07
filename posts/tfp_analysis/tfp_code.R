@@ -12,13 +12,14 @@ library(gplots)
 library(multcomp)
 library(sna)
 library(kableExtra)
+
 #full data
-tfp_all <- read_excel("~/EDS222/EDS222Final/AgTFPInternational2020_long.xlsx", sheet = 2) |>
+tfp_all <- read_excel("~/EDS222/tfp-statistics/AgTFPInternational2020_long.xlsx", sheet = 2) |>
   clean_names()
 
 
 #data dictionary 
-tfp_dict <- read_excel("~/EDS222/EDS222Final/AgTFPInternational2020_long.xlsx", sheet = 1, skip = 2)
+tfp_dict <- read_excel("~/EDS222/tfp-statistics/AgTFPInternational2020_long.xlsx", sheet = 1, skip = 2)
 
 #world tfp visualization
 tfp_world <- tfp_all |> 
@@ -30,7 +31,7 @@ tfp_world_plot <- ggplot(data = tfp_world) +
   labs(y = 'TFP Index', x = 'Year', 
        title = 'Global Total Factor Production Indices (1961-2020)') +
   scale_x_discrete(breaks = scales::pretty_breaks(n=10)) 
-#ggplotly(tfp_world_plot)
+ggplotly(tfp_world_plot)
 
 tfp_country_p <- tfp_all |> 
   filter(level == 'Country',
