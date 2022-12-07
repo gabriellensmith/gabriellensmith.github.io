@@ -1,55 +1,54 @@
 ---
-title: "Agriculture Total Factor Productivity Growth in Global Income Classes"
-description: "A statistical analysis of agriculture total factor productivity indices on global and income class scales, employing methods of multiple linear regression, mean testing, and time series forecasting."
-author:
+title: "Agriculture Total Factor Production in Global Income Classes"
+author: 
   - name: Gabrielle Smith
     url: https://gabriellensmith.github.io
     affiliation: MEDS
     affiliation-url: https://ucsb-meds.github.io/
+format: pdf
+editor: visual
 date: 2022-12-03
 catergories: [MEDS, R]
 editor: visual
 toc: true
 draft: false
-format: 
-  html:
-    code-fold: true
-    code-summary: 'see code'
 ---
 
-```{r, include = FALSE}
+```{r}
 source("~/Website/gabriellensmith.github.io/posts/tfp_analysis/tfp_code.R", local = knitr::knit_global())
 ```
 
 ### Introduction
 
-The agricultural sector faces opposing pressures of sustaining a growing population while minimizing its unfavorable outcomes on finite environmental resources[^1]. In an effort to simultaneously move towards these goals, countries around the world have prioritized agricultural productivity. One of the most informative measures of agricultural productivity is total factor productivity (TFP). TFP compares gross outputs of crop, animal and aquaculture products to inputs of land, labor, capital and material resources utilized in farm production[^2]. As gross output increases at a faster rate than total inputs, total factor production improves, which eases tensions on environmental resources and food security, and boosts economic growth[^3]. TFP is expressed generally by the equation:
-$$TFP=Y/X$$
-where Y represents gross output and X represents total inputs. 
+The agricultural sector faces opposing pressures of sustaining a growing population while minimizing its unfavorable outcomes on finite environmental resources\[\^1\]. In an effort to simultaneously move towards these goals, countries around the world have prioritized agricultural productivity. One of the most informative measures of agricultural productivity is total factor productivity (TFP). TFP compares gross outputs of crop, animal and aquaculture products to inputs of land, labor, capital and material resources utilized in farm production\[\^2\]. As gross output increases at a faster rate than total inputs, total factor production improves, which eases tensions on environmental resources and food security, and boosts economic growth\[\^3\]. TFP is expressed generally by the equation:
 
-[^1]: Network on Agricultural Total Factor Productivity and the Environment. Oecd.org. Accessed December 4, 2022. https://www.oecd.org/agriculture/topics/network-agricultural-productivity-and-environment/
+$$TFP = Y/X$$
 
-[^2]: Fuglie K, Jelliffe J, Morgan S. Documentation and methods. Usda.gov. Published October 7, 2022. Accessed December 4, 2022. https://www.ers.usda.gov/data-products/international-agricultural-productivity/documentation-and-methods/
+where Y represents gross output and X represents total inputs.
 
-[^3]: Fuglie K, Jelliffe J, Morgan S. Documentation and methods. Usda.gov. Published October 7, 2022. Accessed December 4, 2022. https://www.ers.usda.gov/data-products/international-agricultural-productivity/documentation-and-methods/
+\[\^1\]: Network on Agricultural Total Factor Productivity and the Environment. Oecd.org. Accessed December 4, 2022. https://www.oecd.org/agriculture/topics/network-agricultural-productivity-and-environment/
 
-TFP is an important measure for informing policy priorities for agricultural productivity. These policies include investments in research and development, incentivizing economic reforms for farmers, rural education and extension, and improvments in infrastructure[^4]. Understanding the effects of individual inputs on TFP can direct decision making as it relates to resource allocation for these policy investments.
+\[\^2\]: Fuglie K, Jelliffe J, Morgan S. Documentation and methods. Usda.gov. Published October 7, 2022. Accessed December 4, 2022. https://www.ers.usda.gov/data-products/international-agricultural-productivity/documentation-and-methods/
 
-[^4]: Fuglie K, Wang SL. New Evidence Points to Robust But Uneven Productivity Growth in Global Agriculture. Usda.gov. Published September 20, 2012. Accessed December 4, 2022. https://www.ers.usda.gov/amber-waves/2012/september/global-agriculture/
+\[\^3\]: Fuglie K, Jelliffe J, Morgan S. Documentation and methods. Usda.gov. Published October 7, 2022. Accessed December 4, 2022. https://www.ers.usda.gov/data-products/international-agricultural-productivity/documentation-and-methods/
 
-![](usda_output.png){fig-align="center"}
+TFP is an important measure for informing policy priorities for agricultural productivity. These policies include investments in research and development, incentivizing economic reforms for farmers, rural education and extension, and improvments in infrastructure\[\^4\]. Understanding the effects of individual inputs on TFP can direct decision making as it relates to resource allocation for these policy investments.
+
+\[\^4\]: Fuglie K, Wang SL. New Evidence Points to Robust But Uneven Productivity Growth in Global Agriculture. Usda.gov. Published September 20, 2012. Accessed December 4, 2022. https://www.ers.usda.gov/amber-waves/2012/september/global-agriculture/
+
+!\[\](usda_output.png){fig-align="center"}
 
 This analysis will regress global TFP indices on inputs of land, labor, capital, and materials to examine the effects of these inputs on gross outputs. This regression can be utilized to maximize TFP growth rates by differentiating efficiency levels of individual inputs as they relate to gross productivity, which can direct resource allocation to technological improvements of inefficient input systems.
 
-Additionally, it will examine TFP growth rates for country groupings of income class (defined by the [World Bank](https://blogs.worldbank.org/opendata/new-world-bank-country-classifications-income-level-2021-2022)) by testing for mean differences. It will also forecast TFP growth rates for years 2020-2030 at a global scale and for income classes by employing automated autoregressive moving average (ARIMA) models. Understanding nuances in TFP growth for varying income scales can be useful in further research to refine regressions that direct policy prioritization.
+Additionally, it will examine TFP growth rates for country groupings of income class (defined by the \[World Bank\](https://blogs.worldbank.org/opendata/new-world-bank-country-classifications-income-level-2021-2022)) by testing for mean differences. It will also forecast TFP growth rates for years 2020-2030 at a global scale and for income classes by employing automated autoregressive moving average (ARIMA) models. Understanding nuances in TFP growth for varying income scales can be useful in further research to refine regressions that direct policy prioritization.
 
 All relevant analysis outputs are included in the Analysis section - for detailed code concerning model checking, reference the Model Testing and Supporting Figures section.
 
-### Data 
+### Data
 
-Data used in this analysis is sourced from the United States Department of Agriculture's (USDA) Economic Research Services[^5]. This data is publicly available [here](https://www.ers.usda.gov/data-products/international-agricultural-productivity/). Data files contain annual indices for agricultural TFP, outputs, and inputs for individual countries, major global regions, and countries grouped by income levels for years 1961-2020. Detailed data on land, labor, capital and material inputs used to construct TFP indices is also included, but are not contained in the subsetted data used for the purposes of this particular analysis. TFPs are indexed with a base year of 2015 such that TFP values for countries and regions are set to 100 in 2015.
+Data used in this analysis is sourced from the United States Department of Agriculture's (USDA) Economic Research Services\[\^5\]. This data is publicly available \[here\](https://www.ers.usda.gov/data-products/international-agricultural-productivity/). Data files contain annual indices for agricultural TFP, outputs, and inputs for individual countries, major global regions, and countries grouped by income levels for years 1961-2020. Detailed data on land, labor, capital and material inputs used to construct TFP indices is also included, but are not contained in the subsetted data used for the purposes of this particular analysis. TFPs are indexed with a base year of 2015 such that TFP values for countries and regions are set to 100 in 2015.
 
-[^5]: Fuglie K, Jelliffe J, Morgan S. International agricultural productivity. Usda.gov. Published October 7, 2022. Accessed December 4, 2022. https://www.ers.usda.gov/data-products/international-agricultural-productivity/
+\[\^5\]: Fuglie K, Jelliffe J, Morgan S. International agricultural productivity. Usda.gov. Published October 7, 2022. Accessed December 4, 2022. https://www.ers.usda.gov/data-products/international-agricultural-productivity/
 
 It is relevant to note that TFP index comparison between geographical regions provides information regarding TFP growth rates, but is not informative for direct comparison of productivity levels.
 
@@ -146,7 +145,9 @@ tab_model(model2,
 ```
 
 Given coefficient estimates of our performed regression, the final model is represented as:
+
 $$log(TFP) = 4.515429 + 0.0008662*land_i - 0.0019178*labor_i - 0.0000779*capital_i + \\ 0.0000062 * land_i:capital_i + \varepsilon_i$$
+
 The model regression indicates that capital is not a significant predictor variable (p = 0.117); however, all other predictor variables are found to be significant at the 0.001 level (p \< 0.001 for all remaining variables). Given that the interaction between land and capital variables is significant (p \< 0.001), we opt to preserve capital as a predictor variable in spite of its insignificant predictive power. It is relevant to note that the model summary values are based off of a log-transformed model - for interpretability of these results, it is recommended an inverse transformation be performed on the model estimates. In spite of this, given the signs of the estimates, it can be noted that labor and capital inputs are negatively correlated with TFP, while land and land/capital interaction inputs are positively correlated with TFP. The overall predictive power of the model is low (evidenced by adjusted r-squared = 0.075), which suggests that it is not well equipped to accurately predict TFP variability.
 
 #### Differences in Means for Varying World Economies
