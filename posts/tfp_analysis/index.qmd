@@ -154,11 +154,13 @@ The model regression indicates that capital is not a significant predictor varia
 We move to performing statistical tests to compare means of TFP indices between countries grouped by income class: low income (LI), lower-middle income (MI-L), upper-middle income (MI-U), high income (HI). Our first step is to visualize the distribution of the data for all income classes.
 
 ```{r}
+#income class factors
 tfp_income <- tfp_country |> 
   select(income, tfp_index) |>
   filter(income %in% c('LI','MI-U','HI','MI-L')) |> 
   mutate(income = as.factor(income))
 
+#distribution visualization for income class factor data
 violin_plot <- ggviolin(tfp_income, x='income', y='tfp_index', fill = 'income', 
          order = c('LI', 'MI-L', 'MI-U', 'HI'), 
          ylab = 'TFP Index', xlab = 'Income Class',
@@ -287,25 +289,23 @@ This analysis lends itself to understanding how policy priorities can be shaped 
 Full analysis code is available [here](https://github.com/gabriellensmith/tfp-statistics.git). Model testing and supporting figures contains various steps of regression model fitting and checking, as well as model fitting and checking for income class grouped ARIMA models. 
 
 ```{r}
-#country data
-tfp_country <- tfp_all |> 
-  filter(level == 'Country') |> 
-  select(country_territory, income, year, tfp_index, c(13:16))
-
+#regression model variable assignments 
 y <- tfp_country$tfp_index
 x1 <- tfp_country$land_index
 x2 <- tfp_country$labor_index
 x3 <- tfp_country$capital_index
 x4 <- tfp_country$materials_index
 
-#stepwise regression
+#lower model
 mod0 <- lm(y~1)
+#upper model
 mod_upper <- lm(y~x1+x2+x3+x4)
+#stepwise regression for model selection 
 #step(mod0, scope=list(lower = mod0, upper=mod_upper))
 ```
 
 ```{r}
-#r-squared, adjusted r-squared, and Mallow's Cp values
+#r-squared, adjusted r-squared, and Mallow's Cp values of reduced model 
 mod <- regsubsets(cbind(x1,x2,x3),y)
 summary_mod <- summary(mod)
 #Mallow's Cp
@@ -315,17 +315,18 @@ summary_mod$rsq
 #adjusted r-squared values
 summary_mod$adjr2
 
-#pairwise analysis
+#pairwise analysis of reduced variables
 pairs(cbind(x1,x2,x3), main = 'Pairwise Analysis of Reduced TFP Regression Variables', labels = c('Land', 'Labor', 'Capital'))
 
-#stepwise regression
+#upper model with interaction terms 
 mod_upper1 <- lm(y~x1+x2+x3+x1*x2+x1*x3+x1*x3)
+#stepwise regression for model selection 
 #step(mod0, scope=list(lower = mod0, upper=mod_upper1))
 model1 <- lm(y~x1+x2+x3+x2:x1)
 ```
 
 ```{r}
-#fitted vs. residuals checking for non-transformed model
+#fitted vs. residuals checking for non-transformed model 
 plot(fitted(model1),residuals(model1))
 abline(h=0)
 title(main = 'Fitted vs. Residuals for non-transformed linear model')
@@ -337,7 +338,7 @@ hist(y, main = 'Distribution of non-transformed TFP response variable', xlab = '
 ```
 
 ```{r}
-#transformed model 
+#log transformed model 
 model2 <- lm(log(y) ~ x1+x2+x3+x2:x1)
 
 #fitted vs. residuals checking for log transformed model 
@@ -394,7 +395,7 @@ tfp_time_mi <- tfp_country |>
   group_by(date) |> 
   summarize(tfp_index_mean = mean(tfp_index))
 
-ts_mil <- xts(tfp_time_mil$tfp_index_mean, tfp_time_mil$date)
+ts_mi <- xts(tfp_time_mi$tfp_index_mean, tfp_time_mi$date)
 
 fit_mi <- auto.arima(ts_mi)
 
