@@ -44,7 +44,7 @@ This analysis will regress global TFP indices on inputs of land, labor, capital,
 Additionally, it will examine TFP growth rates for country groupings of income class (defined by the [World Bank](https://blogs.worldbank.org/opendata/new-world-bank-country-classifications-income-level-2021-2022)) by testing for mean differences. It will also forecast TFP growth rates for years 2020-2030 at a global scale and for income classes by employing automated autoregressive moving average (ARIMA) models. Understanding nuances in TFP growth for varying income scales can be useful in further research to refine regressions that direct policy prioritization.
 
 All relevant analysis outputs are included in the Analysis section - for detailed code concerning model checking, reference the Model Testing and Supporting Figures section.
-
+ 
 ### Data 
 
 Data used in this analysis is sourced from the United States Department of Agriculture's (USDA) Economic Research Services[^5]. This data is publicly available [here](https://www.ers.usda.gov/data-products/international-agricultural-productivity/). Data files contain annual indices for agricultural TFP, outputs, and inputs for individual countries, major global regions, and countries grouped by income levels for years 1961-2020. Detailed data on land, labor, capital and material inputs used to construct TFP indices is also included, but are not contained in the subsetted data used for the purposes of this particular analysis. TFPs are indexed with a base year of 2015 such that TFP values for countries and regions are set to 100 in 2015.
