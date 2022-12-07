@@ -6,7 +6,7 @@ author:
     url: https://gabriellensmith.github.io
     affiliation: MEDS
     affiliation-url: https://ucsb-meds.github.io/
-date: 2022-12-03
+date: 2022-12-07
 catergories: [MEDS, R]
 editor: visual
 toc: true
@@ -53,7 +53,7 @@ Data used in this analysis is sourced from the United States Department of Agric
 
 It is relevant to note that TFP index comparison between geographical regions provides information regarding TFP growth rates, but is not informative for direct comparison of productivity levels.
 
-```{r, echo = FALSE}
+```{r}
 #country plot data 
 tfp_country_p <- tfp_all |> 
   filter(level == 'Country',
@@ -130,7 +130,7 @@ A summary of the updated model is evaluated. A Residuals vs. Fitted plot display
 
 Accepted model: $$log(TFP) = \beta_0 + \beta_1*land_i + \beta_2*labor_i + \beta_3*capital_i + \beta_4 * land_i:capital_i + \varepsilon_i$$
 
-```{r, echo = FALSE}
+```{r}
 #multiple regression model
 model2 <- lm(log(y) ~ x1+x2+x3+x2:x1)
 
@@ -153,7 +153,7 @@ The model regression indicates that capital is not a significant predictor varia
 
 We move to performing statistical tests to compare means of TFP indices between countries grouped by income class: low income (LI), lower-middle income (MI-L), upper-middle income (MI-U), high income (HI). Our first step is to visualize the distribution of the data for all income classes.
 
-```{r, echo = FALSE}
+```{r}
 tfp_income <- tfp_country |> 
   select(income, tfp_index) |>
   filter(income %in% c('LI','MI-U','HI','MI-L')) |> 
@@ -177,7 +177,7 @@ The alternative hypothesis:
 H~A~: mean TFP indices are not equal across all income classes 
 
 
-```{r, echo = FALSE}
+```{r}
 #kruskal test for difference in means
 income_k <- kruskal_test(tfp_index ~ income, data = tfp_income)
   
@@ -203,7 +203,7 @@ The Kruskal-Wallis test (p<0.0001) rejects the null hypothesis; there is signifi
 
 We employ autoregressive integrated moving average (ARIMA) models to predict global and income class grouped TFP indices until year 2030.
 
-```{r, echo = FALSE}
+```{r}
 #add dates to world data
 tfp_time <- tfp_world |> 
   mutate(date = paste0(year, '-01-01'),
@@ -234,7 +234,7 @@ lines((length(ts)+1):(length(ts)+10), pred.tr$pred, col='red')
 
 Based on historical trend, the forecast anticipates that global TFP will continue to grow in the coming decade. We look to forecasted values for more detailed information concerning this growth.
 
-```{r, echo = FALSE}
+```{r}
 #income class forecasts 
 pred.hi <- predict(fit_hi, n.ahead=10)
 pred.li <- predict(fit_li, n.ahead=10)
@@ -284,9 +284,9 @@ This analysis lends itself to understanding how policy priorities can be shaped 
 
 ### Model Testing and Supporting Figures
 
-See website for included model testing and supporting figures. 
+Full analysis code is available [here](https://github.com/gabriellensmith/tfp-statistics.git). Model testing and supporting figures contains various steps of regression model fitting and checking, as well as model fitting and checking for income class grouped ARIMA models. 
 
-```{r, include = FALSE}
+```{r}
 #country data
 tfp_country <- tfp_all |> 
   filter(level == 'Country') |> 
@@ -304,7 +304,7 @@ mod_upper <- lm(y~x1+x2+x3+x4)
 #step(mod0, scope=list(lower = mod0, upper=mod_upper))
 ```
 
-```{r, include = FALSE}
+```{r}
 #r-squared, adjusted r-squared, and Mallow's Cp values
 mod <- regsubsets(cbind(x1,x2,x3),y)
 summary_mod <- summary(mod)
@@ -324,7 +324,7 @@ mod_upper1 <- lm(y~x1+x2+x3+x1*x2+x1*x3+x1*x3)
 model1 <- lm(y~x1+x2+x3+x2:x1)
 ```
 
-```{r, include = FALSE}
+```{r}
 #fitted vs. residuals checking for non-transformed model
 plot(fitted(model1),residuals(model1))
 abline(h=0)
@@ -336,7 +336,7 @@ qqline(residuals(model1))
 hist(y, main = 'Distribution of non-transformed TFP response variable', xlab = 'TFP')
 ```
 
-```{r, include = FALSE}
+```{r}
 #transformed model 
 model2 <- lm(log(y) ~ x1+x2+x3+x2:x1)
 
@@ -351,7 +351,7 @@ qqline(residuals(model2))
 hist(log(y), main = 'Distribution of log transformed TFP', xlab = 'log(TFP)')
 ```
 
-```{r, include = FALSE}
+```{r}
 #low income forecasting 
 tfp_time_li <- tfp_country |> 
   filter(income == 'LI') |> 
@@ -368,7 +368,7 @@ fit_li <- auto.arima(ts_li)
 checkresiduals(fit_li)
 ```
 
-```{r, include = FALSE}
+```{r}
 #lower-middle income forecasting 
 tfp_time_mil <- tfp_country |> 
   filter(income == 'MI-L') |> 
@@ -385,7 +385,7 @@ fit_mil <- auto.arima(ts_mil)
 checkresiduals(fit_mil)
 ```
 
-```{r, include = FALSE}
+```{r}
 #upper-middle income forecasting 
 tfp_time_mi <- tfp_country |> 
   filter(income == 'MI-U') |> 
@@ -402,7 +402,7 @@ fit_mi <- auto.arima(ts_mi)
 checkresiduals(fit_mi)
 ```
 
-```{r, include = FALSE}
+```{r}
 #high income forecasting 
 tfp_time_hi <- tfp_country |> 
   filter(income == 'HI') |> 
