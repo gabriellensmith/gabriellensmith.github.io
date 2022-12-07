@@ -53,7 +53,7 @@ Data used in this analysis is sourced from the United States Department of Agric
 
 It is relevant to note that TFP index comparison between geographical regions provides information regarding TFP growth rates, but is not informative for direct comparison of productivity levels.
 
-```{r}
+```{r, echo = FALSE}
 #country plot data 
 tfp_country_p <- tfp_all |> 
   filter(level == 'Country',
@@ -130,7 +130,7 @@ A summary of the updated model is evaluated. A Residuals vs. Fitted plot display
 
 Accepted model: $$log(TFP) = \beta_0 + \beta_1*land_i + \beta_2*labor_i + \beta_3*capital_i + \beta_4 * land_i:capital_i + \varepsilon_i$$
 
-```{r}
+```{r, echo = FALSE}
 #multiple regression model
 model2 <- lm(log(y) ~ x1+x2+x3+x2:x1)
 
@@ -153,7 +153,7 @@ The model regression indicates that capital is not a significant predictor varia
 
 We move to performing statistical tests to compare means of TFP indices between countries grouped by income class: low income (LI), lower-middle income (MI-L), upper-middle income (MI-U), high income (HI). Our first step is to visualize the distribution of the data for all income classes.
 
-```{r}
+```{r, echo = FALSE}
 tfp_income <- tfp_country |> 
   select(income, tfp_index) |>
   filter(income %in% c('LI','MI-U','HI','MI-L')) |> 
@@ -177,7 +177,7 @@ The alternative hypothesis:
 H~A~: mean TFP indices are not equal across all income classes 
 
 
-```{r}
+```{r, echo = FALSE}
 #kruskal test for difference in means
 income_k <- kruskal_test(tfp_index ~ income, data = tfp_income)
   
@@ -203,7 +203,7 @@ The Kruskal-Wallis test (p<0.0001) rejects the null hypothesis; there is signifi
 
 We employ autoregressive integrated moving average (ARIMA) models to predict global and income class grouped TFP indices until year 2030.
 
-```{r}
+```{r, echo = FALSE}
 #add dates to world data
 tfp_time <- tfp_world |> 
   mutate(date = paste0(year, '-01-01'),
@@ -234,7 +234,7 @@ lines((length(ts)+1):(length(ts)+10), pred.tr$pred, col='red')
 
 Based on historical trend, the forecast anticipates that global TFP will continue to grow in the coming decade. We look to forecasted values for more detailed information concerning this growth.
 
-```{r}
+```{r, echo = FALSE}
 #income class forecasts 
 pred.hi <- predict(fit_hi, n.ahead=10)
 pred.li <- predict(fit_li, n.ahead=10)
@@ -283,6 +283,8 @@ Finally, current measures of TFP do not factor environmental impacts. Growing pr
 This analysis lends itself to understanding how policy priorities can be shaped to maximize agricultural TFP growth through individual inputs, and examines the differences of this index across various levels of income class.
 
 ### Model Testing and Supporting Figures
+
+See website for included model testing and supporting figures. 
 
 ```{r, include = FALSE}
 #country data
