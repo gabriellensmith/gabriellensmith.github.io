@@ -18,14 +18,12 @@ format:
 ---
 
 ```{r, include = FALSE}
-source("~/Website/gabriellensmith.github.io/posts/tfp_analysis/tfp_code.R", local = knitr::knit_global())
+source("/Users/gabriellesmith/MEDS/gabriellensmith.github.io/posts/tfp_analysis/tfp_code.R", local = knitr::knit_global())
 ```
 
 ### Introduction
 
-The agricultural sector faces opposing pressures of sustaining a growing population while minimizing its unfavorable outcomes on finite environmental resources[^1]. In an effort to simultaneously move towards these goals, countries around the world have prioritized agricultural productivity. One of the most informative measures of agricultural productivity is total factor productivity (TFP). TFP compares gross outputs of crop, animal and aquaculture products to inputs of land, labor, capital and material resources utilized in farm production[^2]. As gross output increases at a faster rate than total inputs, total factor production improves, which eases tensions on environmental resources and food security, and boosts economic growth[^3]. TFP is expressed generally by the equation:
-$$TFP=Y/X$$
-where Y represents gross output and X represents total inputs. 
+The agricultural sector faces opposing pressures of sustaining a growing population while minimizing its unfavorable outcomes on finite environmental resources[^1]. In an effort to simultaneously move towards these goals, countries around the world have prioritized agricultural productivity. One of the most informative measures of agricultural productivity is total factor productivity (TFP). TFP compares gross outputs of crop, animal and aquaculture products to inputs of land, labor, capital and material resources utilized in farm production[^2]. As gross output increases at a faster rate than total inputs, total factor production improves, which eases tensions on environmental resources and food security, and boosts economic growth[^3]. TFP is expressed generally by the equation: $$TFP=Y/X$$ where Y represents gross output and X represents total inputs.
 
 [^1]: Network on Agricultural Total Factor Productivity and the Environment. Oecd.org. Accessed December 4, 2022. https://www.oecd.org/agriculture/topics/network-agricultural-productivity-and-environment/
 
@@ -44,8 +42,8 @@ This analysis will regress global TFP indices on inputs of land, labor, capital,
 Additionally, it will examine TFP growth rates for country groupings of income class (defined by the [World Bank](https://blogs.worldbank.org/opendata/new-world-bank-country-classifications-income-level-2021-2022)) by testing for mean differences. It will also forecast TFP growth rates for years 2020-2030 at a global scale and for income classes by employing automated autoregressive moving average (ARIMA) models. Understanding nuances in TFP growth for varying income scales can be useful in further research to refine regressions that direct policy prioritization.
 
 All relevant analysis outputs are included in the Analysis section - for detailed code concerning model checking, reference the Model Testing and Supporting Figures section.
- 
-### Data 
+
+### Data
 
 Data used in this analysis is sourced from the United States Department of Agriculture's (USDA) Economic Research Services[^5]. This data is publicly available [here](https://www.ers.usda.gov/data-products/international-agricultural-productivity/). Data files contain annual indices for agricultural TFP, outputs, and inputs for individual countries, major global regions, and countries grouped by income levels for years 1961-2020. Detailed data on land, labor, capital and material inputs used to construct TFP indices is also included, but are not contained in the subsetted data used for the purposes of this particular analysis. TFPs are indexed with a base year of 2015 such that TFP values for countries and regions are set to 100 in 2015.
 
@@ -145,9 +143,7 @@ tab_model(model2,
           digits = 7)
 ```
 
-Given coefficient estimates of our performed regression, the final model is represented as:
-$$log(TFP) = 4.515429 + 0.0008662*land_i - 0.0019178*labor_i - 0.0000779*capital_i + \\ 0.0000062 * land_i:capital_i + \varepsilon_i$$
-The model regression indicates that capital is not a significant predictor variable (p = 0.117); however, all other predictor variables are found to be significant at the 0.001 level (p \< 0.001 for all remaining variables). Given that the interaction between land and capital variables is significant (p \< 0.001), we opt to preserve capital as a predictor variable in spite of its insignificant predictive power. It is relevant to note that the model summary values are based off of a log-transformed model - for interpretability of these results, it is recommended an inverse transformation be performed on the model estimates. In spite of this, given the signs of the estimates, it can be noted that labor and capital inputs are negatively correlated with TFP, while land and land/capital interaction inputs are positively correlated with TFP. The overall predictive power of the model is low (evidenced by adjusted r-squared = 0.075), which suggests that it is not well equipped to accurately predict TFP variability.
+Given coefficient estimates of our performed regression, the final model is represented as: $$log(TFP) = 4.515429 + 0.0008662*land_i - 0.0019178*labor_i - 0.0000779*capital_i + \\ 0.0000062 * land_i:capital_i + \varepsilon_i$$ The model regression indicates that capital is not a significant predictor variable (p = 0.117); however, all other predictor variables are found to be significant at the 0.001 level (p \< 0.001 for all remaining variables). Given that the interaction between land and capital variables is significant (p \< 0.001), we opt to preserve capital as a predictor variable in spite of its insignificant predictive power. It is relevant to note that the model summary values are based off of a log-transformed model - for interpretability of these results, it is recommended an inverse transformation be performed on the model estimates. In spite of this, given the signs of the estimates, it can be noted that labor and capital inputs are negatively correlated with TFP, while land and land/capital interaction inputs are positively correlated with TFP. The overall predictive power of the model is low (evidenced by adjusted r-squared = 0.075), which suggests that it is not well equipped to accurately predict TFP variability.
 
 #### Differences in Means for Varying World Economies
 
@@ -174,10 +170,9 @@ Given that there are significant outliers in each income class, mean differences
 
 The null hypothesis: $$H_0: \mu_{low}=\mu_{mid-low} = \mu_{mid-high} = \mu_{high}$$
 
-The alternative hypothesis: 
+The alternative hypothesis:
 
-H~A~: mean TFP indices are not equal across all income classes 
-
+H~A~: mean TFP indices are not equal across all income classes
 
 ```{r}
 #kruskal test for difference in means
@@ -199,7 +194,7 @@ y = 'TFP Index', x = 'Income Level') +
   theme()
 ```
 
-The Kruskal-Wallis test (p<0.0001) rejects the null hypothesis; there is significant evidence to suggest that there is a difference in mean TFP indices between differing income classes. The Dunn test concludes that this difference is statistically significant between all income class pairings, indicated by significance asterisks of the above. We use this information primarily to validate the productivity of forecasting TFP growth at income class scales as opposed to globally, rather than for the purpose of directly comparing mean differences, since dataset indexing invalidates the capacity for direct productivity comparisons between groups. 
+The Kruskal-Wallis test (p\<0.0001) rejects the null hypothesis; there is significant evidence to suggest that there is a difference in mean TFP indices between differing income classes. The Dunn test concludes that this difference is statistically significant between all income class pairings, indicated by significance asterisks of the above. We use this information primarily to validate the productivity of forecasting TFP growth at income class scales as opposed to globally, rather than for the purpose of directly comparing mean differences, since dataset indexing invalidates the capacity for direct productivity comparisons between groups.
 
 #### TFP Growth Forecasting
 
@@ -272,7 +267,7 @@ The time series forecasting of TFP indices exhibits predicted increases in globa
 
 ### Further Research
 
-Under the produced linear model, only 7.5% of variation in global TFP is explained by the model's input variables (Tbl 1). It is reasonable to expect that a global model utilizing detailed land, labor, capital, and materials variables may perform better than a model comprised of only their summative indexes. A best fitting model to inform policy prioritization will be tailored to a particular country of interest, which eliminates the variability of cross-country differences in TFP. 
+Under the produced linear model, only 7.5% of variation in global TFP is explained by the model's input variables (Tbl 1). It is reasonable to expect that a global model utilizing detailed land, labor, capital, and materials variables may perform better than a model comprised of only their summative indexes. A best fitting model to inform policy prioritization will be tailored to a particular country of interest, which eliminates the variability of cross-country differences in TFP.
 
 Furthermore, some of the residuals of the automated predictive models appear to be significant beyond the randomness of white noise (see Model Checking and Supporting Figures), which implies potential to produce more accurate forecasting models for income class groupings.
 
@@ -286,7 +281,7 @@ This analysis lends itself to understanding how policy priorities can be shaped 
 
 ### Model Testing and Supporting Figures
 
-Full analysis code is available [here](https://github.com/gabriellensmith/tfp-statistics.git). Model testing and supporting figures contains various steps of regression model fitting and checking, as well as model fitting and checking for income class grouped ARIMA models. 
+Full analysis code is available [here](https://github.com/gabriellensmith/tfp-statistics.git). Model testing and supporting figures contains various steps of regression model fitting and checking, as well as model fitting and checking for income class grouped ARIMA models.
 
 ```{r}
 #regression model variable assignments 

@@ -1,37 +1,41 @@
 ---
-title: "gabrielle smith"
+title: ""
 image: headshot.jpeg
+toc: false
 about:
-  template: marquee
+  template: jolla
   image-shape: rounded
-  image-width: 15em
+  image-width: 14em
   links: 
+    - icon: linkedin
+      text: LinkedIn
+      href: https://www.linkedin.com/in/gabrielle-smith-38a6a31a3/
     - icon: github
       text: GitHub
       href: https://github.com/gabriellensmith
     - icon: envelope
       text: Email
-      href: mailto:gabriellesmith@ucsb.edu
+      href: mailto::gabriellesmith@ucsb.edu
 ---
 
-<div>
+# **Welcome!**
 
-<h2>education</h2>
+I'm Gabrielle, and I am a recent graduate of the University of California, Santa Barbara with a Master's in Environmental Data Science. I'm passionate about leveraging remote sensing techniques to address our environmental challenges. If you're curious about some of the projects I've worked on, you came to the right place!
 
-<p>MS in Environmental Data Science, expected 2023</p>
+------------------------------------------------------------------------
 
-<p class="custom-subtitle">
+# **Education**
 
-UCSB Bren School of Environmental Science and Management
+### [Graduate]{.underline}
 
-</p>
+University of California, Santa Barbara \| Santa Barbara, CA (June 2023)
 
-<p>BS in Statistics and Data Science, 2022</p>
+**Master of Environmental Data Science**
 
-<p class="custom-subtitle">
+### [Undergraduate]{.underline}
 
-University of California, Santa Barbara
+University of California, Santa Barbara \| Santa Barbara, CA (March 2022)
 
-</p>
+**Bachelor of Science in Statistics and Data Science**
 
-</div>
+------------------------------------------------------------------------
