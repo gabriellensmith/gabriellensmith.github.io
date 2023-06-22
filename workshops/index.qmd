@@ -5,6 +5,8 @@ description: |
 author:
   - name: Gabrielle Smith
     url: https://gabriellesmith.github.io/
+date: 2023-04-27
+image: data_wrangler.png
 ---
 
 
