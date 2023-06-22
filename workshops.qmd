@@ -1,0 +1,8 @@
+---
+title: "Workshops"
+listing:
+  type: grid 
+  contents: workshops
+  sort: 'date desc'
+  categories: true
+---

@@ -4,5 +4,11 @@
     "items": [
       "/posts/tfp_analysis/index.html"
     ]
+  },
+  {
+    "listing": "/workshops.html",
+    "items": [
+      "/workshops/index.html"
+    ]
   }
 ]

@@ -11,6 +11,8 @@ website:
       - about.qmd
       - href: posts.qmd
         text: posts
+      - href: workshops.qmd
+        text: workshops
       - href: GS_CV.pdf
         text: cv
       - icon: github
