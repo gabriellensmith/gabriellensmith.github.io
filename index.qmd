@@ -18,7 +18,7 @@ about:
       href: mailto::gabriellesmith@ucsb.edu
 ---
 
-# **Welcome!**
+## **Welcome!**
 
 I'm Gabrielle, and I am a recent graduate of the Bren School of Environmental Science & Management at the University of California, Santa Barbara with a Master's in Environmental Data Science. I also earned a Statistics and Data Science B.S. from the University of California, Santa Barbara in 2022.
 
@@ -26,7 +26,7 @@ I'm passionate about leveraging remote sensing techniques to address our environ
 
 ------------------------------------------------------------------------
 
-# **Education**
+## **Education**
 
 ### [Graduate]{.underline}
 

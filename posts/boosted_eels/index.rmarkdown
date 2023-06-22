@@ -1,0 +1,393 @@
+---
+title: "Eel Species Distribution Modeling Using Boosted Trees"
+description: "A case study of species distribution modeling, following a modeling project described by Edith et al. 2008."
+author:
+  - name: Gabrielle Smith
+    url: https://gabriellensmith.github.io
+    affiliation: MEDS
+    affiliation-url: https://ucsb-meds.github.io/
+date: 2022-12-02
+catergories: [MEDS, Machine Learning, R]
+image: eel.jpeg
+editor: visual
+toc: true
+draft: false
+format: 
+  html:
+    code-fold: true
+    code-tools: true
+    code-summary: 'code'
+---
+
+
+## Description: 
+
+In this post, I perform a case study example of species distribution modeling in a reproduction of the work done by [Edith et al. 2008](https://besjournals.onlinelibrary.wiley.com/doi/10.1111/j.1365-2656.2008.01390.x) \[1\]. For this case study, we model the short-finned eel (*Anguilla australis*) species using Boosted Regression Trees. This analysis is derived from an assignment for EDS232: Machine Learning in Environmental Science, as part of the curriculum for UCSB's Master's of Environmental Data Science program.
+
+Boosted regression trees, also known as gradient boosting machines, are machine learning techniques that combine concepts of regression trees (relating responses to predictors using recursive binary splits) and iterative boosting (an adaptive method for combining simple models to improve predictive performance). In this case study, decision trees are built sequentially using extreme gradient boosting to classify the presence or absence of short-finned eel in a given location with covariates including temperature, slope, rainy days, etc. The work provided by Edith et al. utilizes the {gbm} package in R, while this analysis follows a {tidymodels} approach in R. 
+
+## Data 
+
+Our data for this analysis, "eel.model.data.csv" were retrived from the supplemental information of Edith et al. 2008. These data include the following variables:
+
+![Figure 1: Table 1. from Elith et al. 2008 displaying the variables included in the analysis.](variables.png)
+
+
+```{r}
+#| include: false
+library(readr)
+eel_data_raw <- read_csv("/Users/gabriellesmith/MEDS/EDS232/labs/eel.model.data.csv") 
+```
+
+```{r}
+#| warning: false
+# load required libraries
+library(tidyverse)
+library(rsample)
+library(glmnet)
+library(tidymodels)
+library(ggplot2)
+library(sjPlot)
+library(pROC)
+library(RColorBrewer)
+
+
+eel_data <- eel_data_raw |> 
+  janitor::clean_names() 
+
+# remove site number from modeling data
+eel_model <- eel_data[,-1]
+
+# convert presence of angaus, downstream obstructions, and fishing methods to factors
+eel_model$angaus <- as.factor(eel_model$angaus)
+eel_model$ds_dam <- as.factor(eel_model$ds_dam)
+eel_model$method <- as.factor(eel_model$method)
+
+tab_df(eel_data[1:5,],
+       title = "Table. 1")
+```
+
+
+## Split and Resample
+
+We split the above data into a training and test set, stratifying by the outcome score (angaus) to maintain class balance, improve generalization, and ensure the reliability of evaluation in modeling performances. We then use a 10-fold cross validation to resample the training set, also stratified by outcome score. 
+
+
+```{r}
+# set a seed for reproducibility
+set.seed(123)
+
+#stratified sampling with the {rsample} package
+eel_split <- initial_split(data = eel_model, prop = 0.7, strata = angaus)
+
+eel_train <- training(eel_split)
+eel_test <- testing(eel_split)
+
+# 10-fold cross validation, stratified by our outcome variable, angaus 
+cv_folds <- eel_train |> 
+  vfold_cv(v=10, strata = angaus)
+```
+
+
+## Preprocess
+
+Next, we create a recipe to prepape the data for the XGBoost model. For this analysis, we are interested in predicting the binary outcome variable angaus, which indicates presence or absence of the eel species Anguilla australis.
+
+
+```{r}
+# create a recipe 
+boost_rec <- recipe(angaus ~., data = eel_train) |> 
+  step_normalize(all_numeric()) |> 
+  step_dummy(all_nominal(), -all_outcomes(), one_hot = TRUE) |> 
+  prep()
+
+# bake to check recipe
+baked_train <- bake(boost_rec, eel_train) 
+baked_test <- bake(boost_rec, eel_test) 
+```
+
+
+## Tuning XGBoost
+
+### Tune Learning Rate 
+
+To begin, we perform tuning on just the *learn_rate* parameter.
+
+We create a model specification using {xbgoost} for the estimation, specifying only the learn_rate parameter for tuning.
+
+
+```{r}
+#create a model for specification
+learn_spec <- boost_tree(learn_rate = tune()) |> 
+  set_engine('xgboost') |> 
+  set_mode('classification') 
+```
+
+
+Next, we build a grid to tune our model by using a range of learning rate parameter values.
+
+
+```{r}
+#set a grid to tune hyperparameter values
+learn_grid <- expand.grid(learn_rate = seq(0.0001, 0.3, length.out = 30))
+```
+
+
+Then, we define a new workflow and tune the model using the learning rate grid.
+
+
+```{r}
+#define a new workflow 
+learn_wf <- workflow() |> 
+  add_model(learn_spec) |> 
+  add_recipe(boost_rec)
+
+doParallel::registerDoParallel()
+set.seed(123)
+
+#tune the model
+learn_tune <- learn_wf |> 
+  tune_grid(cv_folds, grid=learn_grid) 
+
+#show the performance of the best models 
+show_best(learn_tune, metric = 'roc_auc') |> 
+  tab_df(title = 'Table 2',
+         digits = 4,
+         footnote = 'Top performing models and their associated estimates for various learning rate parameter values.',
+         show.footnote=TRUE)
+
+#save the best model parameters to be used in future tuning
+best_learnrate <- as.numeric(show_best(learn_tune, metric = 'roc_auc')[1,1])
+```
+
+
+## Tune Tree Parameters
+
+Following the tuning of the learning rate parameter, we create a new specification with a set optimized learning rate from our previous optimization. Now, we shift our focus on tuning the tree parameters.
+
+
+```{r}
+#create a new specificatin with set learning rate 
+tree_spec <- boost_tree(learn_rate = best_learnrate,
+                         min_n = tune(),
+                         tree_depth = tune(),
+                         loss_reduction = tune(),
+                         trees = 3000) |> 
+  set_mode('classification') |> 
+  set_engine('xgboost')
+```
+
+
+Again, we create a tuning grid, this time utilizing grid_max_entropy() to get a representative sampling of the parameter space. 
+
+
+```{r}
+#specify parameters for the tuning grid 
+tree_params <- dials::parameters(min_n(),
+                           tree_depth(),
+                           loss_reduction())
+
+#set the tuning grid 
+tree_grid <- grid_max_entropy(tree_params, size = 20)
+
+#define a new workflow 
+tree_wf <- workflow() |> 
+  add_model(tree_spec) |> 
+  add_recipe(boost_rec)
+
+set.seed(123)
+doParallel::registerDoParallel()
+
+#tune the model
+tree_tuned <- tree_wf |> 
+  tune_grid(cv_folds, grid = tree_grid)
+
+#show the performance of the best models 
+show_best(tree_tuned, metric = 'roc_auc') |> 
+  tab_df(title = 'Table 3',
+         digits = 4,
+         footnote = 'Top performing models and their associated estimates for various tree parameter values.',
+         show.footnote = TRUE)
+
+#save the best model parameters to be used for future tuning
+best_minn <- as.numeric(show_best(tree_tuned, metric = 'roc_auc')[1,1])
+
+best_treedepth <- as.numeric(show_best(tree_tuned, metric = 'roc_auc')[1,2])
+
+best_lossreduction <- as.numeric(show_best(tree_tuned, metric = 'roc_auc')[1,3])
+```
+
+
+## Tune Stochastic Parameters
+
+We create one final specification, setting the learn rate and tree parameters to their optimal values defined in previous tuning iterations. Our final tuning is of the stochastic parameters.
+
+
+```{r}
+#create a new specificatin with set learning rate and tree parameters
+stoch_tune <- boost_tree(learn_rate = best_learnrate,
+                         min_n = best_minn,
+                         tree_depth = best_treedepth,
+                         loss_reduction = best_lossreduction,
+                         trees = 3000,
+                         mtry = tune(), 
+                         sample_size = tune()) |> 
+  set_mode('classification') |> 
+  set_engine('xgboost')
+```
+
+
+We set up a tuning grid, again utilizing grid_max_entropy().
+
+
+```{r}
+#set parameters for the tuning grid 
+stoch_params <- parameters(finalize(mtry(), eel_train),
+                          sample_size = sample_prop())
+
+#set the tuning grid 
+stoch_grid <- grid_max_entropy(stoch_params, size = 20)
+
+#define a new workflow 
+stoch_wf <- workflow() |> 
+  add_model(stoch_tune) |> 
+  add_recipe(boost_rec) 
+
+set.seed(123)
+doParallel::registerDoParallel()
+
+#tune the model 
+stoch_tuned <- stoch_wf |> 
+  tune_grid(cv_folds, grid = stoch_grid)
+
+#show the performance of the best models 
+show_best(stoch_tuned, metric = 'roc_auc') |> 
+  tab_df(title = 'Table 4',
+         digits = 4,
+         footnote = 'Top performing models and their associated estimates for various stochiastic parameter values.',
+         show.footnote = TRUE)
+
+#save the best model parameters to be used for model finalization
+best_mtry <- as.numeric(show_best(stoch_tuned, metric = 'roc_auc')[1,1])
+best_samplesize <- as.numeric(show_best(stoch_tuned, metric = 'roc_auc')[1,2])
+```
+
+
+Now that we have tuned all of our relevant hyperparameters, we assemble a final workflow and do a final fit. 
+
+
+```{r}
+#create a final specification with all set optimized parameters 
+final_model <-  boost_tree(learn_rate = best_learnrate,
+                         min_n = best_minn,
+                         tree_depth = best_treedepth,
+                         loss_reduction = best_lossreduction,
+                         trees = 3000,
+                         mtry = best_mtry, 
+                         sample_size = best_samplesize) |> 
+  set_mode('classification') |> 
+  set_engine('xgboost') 
+
+#define a final workflow 
+final_wf <- workflow() |> 
+  add_model(final_model) |> 
+  add_recipe(boost_rec) 
+
+#fit training data on final wf
+final_fit <- final_wf |> 
+  fit(eel_train)
+
+final_eel_fit <- last_fit(final_model, angaus~., eel_split)
+
+final_pred <- as.data.frame(final_eel_fit$.predictions)
+
+tab_df(head(final_pred),
+       title = 'Table 5',
+       digits = 4,
+       footnote = 'Predictions of Angaus presence on test data.',
+       show.footnote = TRUE)
+```
+
+```{r}
+#bind predictions and original data 
+eel_test_bind <- cbind(eel_test, final_eel_fit$.predictions)
+
+#remove duplicate column
+eel_test_bind <- eel_test_bind[,-1]
+
+#compute a confusion matrix
+confusion_matrix <- eel_test_bind |> 
+  yardstick::conf_mat(truth = angaus, estimate = .pred_class)
+
+autoplot(confusion_matrix, type = "heatmap") +
+  scale_fill_gradient(low = "#C7E9FB", high = "#084594") +
+  theme(axis.text.x = element_text(size = 12),
+        axis.text.y = element_text(size = 12),
+        axis.title = element_text(size = 14),
+        panel.background = element_rect(fill = "#F8F8F8"),
+        plot.background = element_rect(fill = "#F8F8F8")) +
+  labs(title = "Figure 2: Confusion matrix of predictions on test data.")
+```
+
+```{r}
+# store accuracy metrics 
+final_metrics <- final_eel_fit$.metrics
+
+tab_df(final_metrics,
+       title = 'Table 6',
+       digits = 4,
+       footnote = 'Accuracy and Area Under the Receiver Operator Curve (ROC) of the final fit.',
+       show.footnote = TRUE)
+```
+
+
+The final model has an accuracy of 0.80. The ROC area under the curve is 0.82.
+
+## Fit model evaluation data and compare performance 
+
+
+```{r}
+#read in evaluation data 
+eval_data <- read_csv('eel.eval.data.csv', show_col_types = FALSE) |> 
+  janitor::clean_names() |> 
+  rename(angaus = angaus_obs)
+
+# convert presence of angaus, downstream obstructions, and fishing methods to factors
+eval_data$angaus <- as.factor(eval_data$angaus)
+eval_data$ds_dam <- as.factor(eval_data$ds_dam)
+eval_data$method <- as.factor(eval_data$method)
+
+#fit final model to big dataset
+#class predictions
+eval_classpred <- final_fit |> 
+  predict(eval_data)
+
+#probability predictions
+eval_probpred <- final_fit |> 
+  predict(eval_data, type = 'prob')
+
+eval_df <- cbind(eval_classpred, eval_probpred, eval_data)
+
+#accuracy measure
+accuracy <- accuracy(eval_df, truth = angaus, estimate = .pred_class)
+#roc_auc measure 
+roc <- roc_auc(eval_df, truth = angaus, estimate = .pred_0)
+
+metrics <- rbind(accuracy, roc)
+tab_df(metrics, 
+       title = 'Table 7',
+       digits = 4,
+       footnote = 'Accuracy and Area Under the Receiver Operator Curve (ROC) of the model fit to evaluation data.',
+       show.footnote = TRUE)
+```
+
+
+#### How does this model perform on the evaluation data?
+
+The final model, fit to the evaluation data, has an accuracy of 0.82, and the ROC area under the curve is 0.85. For comparison, the model produced by Edith et al. had a ROC area under the curve of 0.858. 
+
+## References 
+
+\[1\] Elith, J., Leathwick, J.R. and Hastie, T. (2008), A working guide to boosted regression trees. Journal of Animal Ecology, 77: 802-813. https://doi.org/10.1111/j.1365-2656.2008.01390.x
+
+
