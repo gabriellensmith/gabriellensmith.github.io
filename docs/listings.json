@@ -1,14 +1,14 @@
 [
   {
-    "listing": "/posts.html",
-    "items": [
-      "/posts/tfp_analysis/index.html"
-    ]
-  },
-  {
     "listing": "/workshops.html",
     "items": [
       "/workshops/index.html"
+    ]
+  },
+  {
+    "listing": "/posts.html",
+    "items": [
+      "/posts/tfp_analysis/index.html"
     ]
   }
 ]
