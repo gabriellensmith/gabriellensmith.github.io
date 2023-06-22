@@ -6,7 +6,7 @@ author:
     url: https://gabriellensmith.github.io
     affiliation: MEDS
     affiliation-url: https://ucsb-meds.github.io/
-date: 2022-12-02
+date: 2023-06-20
 catergories: [MEDS, Machine Learning, R]
 image: eel.jpeg
 editor: visual
