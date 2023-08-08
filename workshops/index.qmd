@@ -9,25 +9,34 @@ date: 2023-04-27
 image: data_wrangler.png
 ---
 
-
 ```{r, echo=FALSE}
 knitr::include_graphics("data_wrangler.png")
 ```
->Illustration from Hadley Wickham's 2019 talk, The Joy of Functional Programming
+
+> Illustration from Hadley Wickham's 2019 talk, The Joy of Functional Programming
 
 <br>
 
-<div class="container">
-<div class="center">
-<button type="button" class="button-styling" onclick=window.location.href='https://shinyapps.bren.ucsb.edu/envs40workshop/learnr.Rmd#section-welcome'>{{< fa file-alt title="A file with lines of text" >}} Instructional Documentation</button>
-<button type="button" class="button-styling" onclick=window.location.href='https://github.com/gabriellensmith/envs40workshop'>{{< fa code title="A symbol for code, </>" >}} Source Code</button> 
-</div>
-</div>
+::: container
+::: center
+<button type="button" class="button-styling" onclick="window.location.href=&#39;https://shinyapps.bren.ucsb.edu/envs40workshop/learnr.Rmd#section-welcome&#39;">
 
-# Overview 
+{{< fa file-alt title="A file with lines of text" >}} Instructional Documentation
+
+</button>
+
+<button type="button" class="button-styling" onclick="window.location.href=&#39;https://github.com/gabriellensmith/envs40workshop&#39;">
+
+{{< fa code title="A symbol for code, </>" >}} Source Code
+
+</button>
+:::
+:::
+
+# Overview
 
 This workshop was developed for ES40: Critical Thinking and Evidence Based Reasoning at the University of California, Santa Barbara.
 
 # Abstract
 
-R is a programming language that enables us to turn data into understanding. In this workshop, we'll introduce the {dplyr} package of the {tidyverse}, which houses many functions that make data easier to work with, as an introduction to R and its applications for environmental data. 
+R is a programming language that enables us to turn data into understanding. In this workshop, we'll introduce the {dplyr} package of the {tidyverse}, which houses many functions that make data easier to work with, as an introduction to R and its applications for environmental data.
