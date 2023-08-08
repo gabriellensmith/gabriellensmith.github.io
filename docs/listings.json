@@ -1,0 +1,15 @@
+[
+  {
+    "listing": "/workshops.html",
+    "items": [
+      "/workshops/index.html"
+    ]
+  },
+  {
+    "listing": "/posts.html",
+    "items": [
+      "/posts/tfp_analysis/index.html",
+      "/posts/boosted_eels/index.html"
+    ]
+  }
+]

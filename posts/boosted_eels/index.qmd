@@ -325,11 +325,10 @@ The final model has an accuracy of 0.80. The ROC area under the curve is 0.82.
 ```{r}
 #read in evaluation data 
 eval_data <- read_csv('eel.eval.data.csv', show_col_types = FALSE) |> 
-  janitor::clean_names() |> 
-  rename(angaus = angaus_obs)
+  janitor::clean_names() 
 
 # convert presence of angaus, downstream obstructions, and fishing methods to factors
-eval_data$angaus <- as.factor(eval_data$angaus)
+eval_data$angaus <- as.factor(eval_data$angaus_obs)
 eval_data$ds_dam <- as.factor(eval_data$ds_dam)
 eval_data$method <- as.factor(eval_data$method)
 
@@ -347,14 +346,14 @@ eval_df <- cbind(eval_classpred, eval_probpred, eval_data)
 #accuracy measure
 accuracy <- accuracy(eval_df, truth = angaus, estimate = .pred_class)
 #roc_auc measure 
-roc <- roc_auc(eval_df, truth = angaus, estimate = .pred_0)
+#roc <- yardstick::roc_auc(eval_df, truth = angaus, estimate = .pred_0)
 
-metrics <- rbind(accuracy, roc)
-tab_df(metrics, 
-       title = 'Table 7',
-       digits = 4,
-       footnote = 'Accuracy and Area Under the Receiver Operator Curve (ROC) of the model fit to evaluation data.',
-       show.footnote = TRUE)
+# metrics <- rbind(accuracy, roc)
+# tab_df(metrics, 
+#        title = 'Table 7',
+#        digits = 4,
+#        footnote = 'Accuracy and Area Under the Receiver Operator Curve (ROC) of the model fit to evaluation data.',
+#        show.footnote = TRUE)
 ```
 
 #### How does this model perform on the evaluation data?

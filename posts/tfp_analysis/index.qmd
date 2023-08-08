@@ -52,58 +52,58 @@ Data used in this analysis is sourced from the United States Department of Agric
 It is relevant to note that TFP index comparison between geographical regions provides information regarding TFP growth rates, but is not informative for direct comparison of productivity levels.
 
 ```{r}
-#country plot data 
-tfp_country_p <- tfp_all |> 
-  filter(level == 'Country',
-         income %in% c('HI', 'MI-U', 'MI-L', 'LI')) |> 
-  select(year, tfp_index, income) |> 
-  group_by(income, year) |> 
-  summarize_all(mean, na.rm = TRUE)
-
-#country income factor levels
-tfp_country_p$income <- factor(tfp_country_p$income, levels = c('HI', 'MI-U', 'MI-L', 'LI'))
-
-#income class TFP plot
-tfp_country_plot <- ggplot(data=tfp_country_p) +
-  geom_line(aes(x=year, y=tfp_index, group=income, color=income), alpha = 0.5) + 
-  theme_minimal() +
-  labs(y = 'TFP Index', x = 'Year') +
-  scale_x_discrete(breaks = scales::pretty_breaks(n=10)) +
-  scale_color_discrete(name = 'Income Class') +
-  theme(plot.title = element_text(hjust = 0.5))
-
-#global TFP plot
-tfp_world_plot <- ggplot(data = tfp_world) + 
-  geom_line(aes(x=year, y=tfp_index, group = 1)) + 
-  labs(y = 'TFP Index') +
-  theme_minimal()  +
-  scale_x_discrete(breaks = scales::pretty_breaks(n=10)) 
-
-#income class + global TFP plot
-subplot(tfp_world_plot, tfp_country_plot, nrows = 2, shareX = TRUE, shareY= TRUE) |> 
-          layout(title = list(text = 'Fig 1. Total Factor Production Indices (1961-2020)', font = list(size = 12)), xaxis = list(x = 0.5,  
-    y = 0,  
-    text = "Income Class Grouped",  
-    xref = "paper",  
-    yref = "paper",  
-    xanchor = "center",  
-    yanchor = "bottom",  
-    showarrow = FALSE),
-                 annotations = list(list(x = 0.03,  
-    y = 0.95,  
-    text = "Global",  
-    xref = "paper",  
-    yref = "paper",  
-    xanchor = "center",  
-    yanchor = "bottom",  
-    showarrow = FALSE) , list(x = 0.13,  
-    y = 0.4,  
-    text = "Income Class Grouped",  
-    xref = "paper",  
-    yref = "paper",  
-    xanchor = "center",  
-    yanchor = "bottom",  
-    showarrow = FALSE)))
+# #country plot data 
+# tfp_country_p <- tfp_all |> 
+#   filter(level == 'Country',
+#          income %in% c('HI', 'MI-U', 'MI-L', 'LI')) |> 
+#   select(year, tfp_index, income) |> 
+#   group_by(income, year) |> 
+#   summarize_all(mean, na.rm = TRUE)
+# 
+# #country income factor levels
+# tfp_country_p$income <- factor(tfp_country_p$income, levels = c('HI', 'MI-U', 'MI-L', 'LI'))
+# 
+# #income class TFP plot
+# tfp_country_plot <- ggplot(data=tfp_country_p) +
+#   geom_line(aes(x=year, y=tfp_index, group=income, color=income), alpha = 0.5) + 
+#   theme_minimal() +
+#   labs(y = 'TFP Index', x = 'Year') +
+#   scale_x_discrete(breaks = scales::pretty_breaks(n=10)) +
+#   scale_color_discrete(name = 'Income Class') +
+#   theme(plot.title = element_text(hjust = 0.5))
+# 
+# #global TFP plot
+# tfp_world_plot <- ggplot(data = tfp_world) + 
+#   geom_line(aes(x=year, y=tfp_index, group = 1)) + 
+#   labs(y = 'TFP Index') +
+#   theme_minimal()  +
+#   scale_x_discrete(breaks = scales::pretty_breaks(n=10)) 
+# 
+# #income class + global TFP plot
+# subplot(tfp_world_plot, tfp_country_plot, nrows = 2, shareX = TRUE, shareY= TRUE) |> 
+#           layout(title = list(text = 'Fig 1. Total Factor Production Indices (1961-2020)', font = list(size = 12)), xaxis = list(x = 0.5,  
+#     y = 0,  
+#     text = "Income Class Grouped",  
+#     xref = "paper",  
+#     yref = "paper",  
+#     xanchor = "center",  
+#     yanchor = "bottom",  
+#     showarrow = FALSE),
+#                  annotations = list(list(x = 0.03,  
+#     y = 0.95,  
+#     text = "Global",  
+#     xref = "paper",  
+#     yref = "paper",  
+#     xanchor = "center",  
+#     yanchor = "bottom",  
+#     showarrow = FALSE) , list(x = 0.13,  
+#     y = 0.4,  
+#     text = "Income Class Grouped",  
+#     xref = "paper",  
+#     yref = "paper",  
+#     xanchor = "center",  
+#     yanchor = "bottom",  
+#     showarrow = FALSE)))
 ```
 
 ### Analysis
