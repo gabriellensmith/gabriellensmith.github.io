@@ -19,13 +19,13 @@ format:
     code-summary: 'code'
 ---
 
-## Description: 
+## Description:
 
 In this post, I perform a case study example of species distribution modeling in a reproduction of the work done by [Edith et al. 2008](https://besjournals.onlinelibrary.wiley.com/doi/10.1111/j.1365-2656.2008.01390.x) \[1\]. For this case study, we model the short-finned eel (*Anguilla australis*) species using Boosted Regression Trees. This analysis is derived from an assignment for EDS232: Machine Learning in Environmental Science, as part of the curriculum for UCSB's Master's of Environmental Data Science program.
 
-Boosted regression trees, also known as gradient boosting machines, are machine learning techniques that combine concepts of regression trees (relating responses to predictors using recursive binary splits) and iterative boosting (an adaptive method for combining simple models to improve predictive performance). In this case study, decision trees are built sequentially using extreme gradient boosting to classify the presence or absence of short-finned eel in a given location with covariates including temperature, slope, rainy days, etc. The work provided by Edith et al. utilizes the {gbm} package in R, while this analysis follows a {tidymodels} approach in R. 
+Boosted regression trees, also known as gradient boosting machines, are machine learning techniques that combine concepts of regression trees (relating responses to predictors using recursive binary splits) and iterative boosting (an adaptive method for combining simple models to improve predictive performance). In this case study, decision trees are built sequentially using extreme gradient boosting to classify the presence or absence of short-finned eel in a given location with covariates including temperature, slope, rainy days, etc. The work provided by Edith et al. utilizes the {gbm} package in R, while this analysis follows a {tidymodels} approach in R.
 
-## Data 
+## Data
 
 Our data for this analysis, "eel.model.data.csv" were retrived from the supplemental information of Edith et al. 2008. These data include the following variables:
 
@@ -67,7 +67,7 @@ tab_df(eel_data[1:5,],
 
 ## Split and Resample
 
-We split the above data into a training and test set, stratifying by the outcome score (angaus) to maintain class balance, improve generalization, and ensure the reliability of evaluation in modeling performances. We then use a 10-fold cross validation to resample the training set, also stratified by outcome score. 
+We split the above data into a training and test set, stratifying by the outcome score (angaus) to maintain class balance, improve generalization, and ensure the reliability of evaluation in modeling performances. We then use a 10-fold cross validation to resample the training set, also stratified by outcome score.
 
 ```{r}
 # set a seed for reproducibility
@@ -102,7 +102,7 @@ baked_test <- bake(boost_rec, eel_test)
 
 ## Tuning XGBoost
 
-### Tune Learning Rate 
+### Tune Learning Rate
 
 To begin, we perform tuning on just the *learn_rate* parameter.
 
@@ -163,7 +163,7 @@ tree_spec <- boost_tree(learn_rate = best_learnrate,
   set_engine('xgboost')
 ```
 
-Again, we create a tuning grid, this time utilizing grid_max_entropy() to get a representative sampling of the parameter space. 
+Again, we create a tuning grid, this time utilizing grid_max_entropy() to get a representative sampling of the parameter space.
 
 ```{r}
 #specify parameters for the tuning grid 
@@ -252,7 +252,7 @@ best_mtry <- as.numeric(show_best(stoch_tuned, metric = 'roc_auc')[1,1])
 best_samplesize <- as.numeric(show_best(stoch_tuned, metric = 'roc_auc')[1,2])
 ```
 
-Now that we have tuned all of our relevant hyperparameters, we assemble a final workflow and do a final fit. 
+Now that we have tuned all of our relevant hyperparameters, we assemble a final workflow and do a final fit.
 
 ```{r}
 #create a final specification with all set optimized parameters 
@@ -306,6 +306,7 @@ autoplot(confusion_matrix, type = "heatmap") +
         plot.background = element_rect(fill = "#F8F8F8")) +
   labs(title = "Figure 2: Confusion matrix of predictions on test data.")
 ```
+
 ```{r}
 # store accuracy metrics 
 final_metrics <- final_eel_fit$.metrics
@@ -319,7 +320,7 @@ tab_df(final_metrics,
 
 The final model has an accuracy of 0.80. The ROC area under the curve is 0.82.
 
-## Fit model evaluation data and compare performance 
+## Fit model evaluation data and compare performance
 
 ```{r}
 #read in evaluation data 
@@ -358,9 +359,8 @@ tab_df(metrics,
 
 #### How does this model perform on the evaluation data?
 
-The final model, fit to the evaluation data, has an accuracy of 0.82, and the ROC area under the curve is 0.85. For comparison, the model produced by Edith et al. had a ROC area under the curve of 0.858. 
+The final model, fit to the evaluation data, has an accuracy of 0.82, and the ROC area under the curve is 0.85. For comparison, the model produced by Edith et al. had a ROC area under the curve of 0.858.
 
-## References 
+## References
 
 \[1\] Elith, J., Leathwick, J.R. and Hastie, T. (2008), A working guide to boosted regression trees. Journal of Animal Ecology, 77: 802-813. https://doi.org/10.1111/j.1365-2656.2008.01390.x
-

@@ -1,0 +1,28 @@
+---
+title: "Estimating Coal Power Plant Operation from Satellite Images with Computer Vision"
+description: "An application of AI for monitoring, reporting, and verification, particularly for coal power emissions, following the Climate AI Summer School tutorial."
+author:
+  - name: Gabrielle Smith
+    url: https://gabriellensmith.github.io
+    affiliation: MEDS
+    affiliation-url: https://ucsb-meds.github.io/
+date: 2023-06-20
+catergories: [Machine Learning, Python, Computer Vision]
+image: eel.jpeg
+editor: visual
+toc: true
+draft: false
+format: 
+  html:
+    code-fold: true
+    code-tools: true
+    code-summary: 'code'
+---
+
+```{r}
+library(reticulate)
+```
+
+```{python}
+import pandas as pd
+```
