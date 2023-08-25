@@ -6,6 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Gabrielle Smith">
 <meta name="dcterms.date" content="2022-12-07">
 <meta name="description" content="A statistical analysis of agriculture total factor productivity indices on global and income class scales, employing methods of multiple linear regression, mean testing, and time series forecasting.">
 
@@ -160,7 +161,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <nav id="TOC" role="doc-toc" class="toc-active">
     <h2 id="toc-title">On this page</h2>
    
-  <ul class="incremental">
+  <ul>
   <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
   <li><a href="#data" id="toc-data" class="nav-link" data-scroll-target="#data">Data</a></li>
   <li><a href="#analysis" id="toc-analysis" class="nav-link" data-scroll-target="#analysis">Analysis</a></li>
@@ -168,13 +169,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#further-research" id="toc-further-research" class="nav-link" data-scroll-target="#further-research">Further Research</a></li>
   <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
   <li><a href="#model-testing-and-supporting-figures" id="toc-model-testing-and-supporting-figures" class="nav-link" data-scroll-target="#model-testing-and-supporting-figures">Model Testing and Supporting Figures</a></li>
-  <li><a href="#introduction-1" id="toc-introduction-1" class="nav-link" data-scroll-target="#introduction-1">Introduction</a></li>
-  <li><a href="#data-1" id="toc-data-1" class="nav-link" data-scroll-target="#data-1">Data</a></li>
-  <li><a href="#analysis-1" id="toc-analysis-1" class="nav-link" data-scroll-target="#analysis-1">Analysis</a></li>
-  <li><a href="#discussion-1" id="toc-discussion-1" class="nav-link" data-scroll-target="#discussion-1">Discussion</a></li>
-  <li><a href="#further-research-1" id="toc-further-research-1" class="nav-link" data-scroll-target="#further-research-1">Further Research</a></li>
-  <li><a href="#conclusion-1" id="toc-conclusion-1" class="nav-link" data-scroll-target="#conclusion-1">Conclusion</a></li>
-  <li><a href="#model-testing-and-supporting-figures-1" id="toc-model-testing-and-supporting-figures-1" class="nav-link" data-scroll-target="#model-testing-and-supporting-figures-1">Model Testing and Supporting Figures</a></li>
   </ul>
 </nav>
     </div>
@@ -214,7 +208,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">2022-12-07</p>
+      <p class="date">December 7, 2022</p>
     </div>
   </div>
   
@@ -876,320 +870,6 @@ Model df: 2.   Total lags used: 10</code></pre>
 </div>
 
 
-<p><code>{r, include = FALSE} source("/Users/gabriellesmith/MEDS/gabriellensmith.github.io/posts/tfp_analysis/tfp_code.R", local = knitr::knit_global())</code></p>
-</section>
-<section id="introduction-1" class="level3">
-<h3 class="anchored" data-anchor-id="introduction-1">Introduction</h3>
-<p>The agricultural sector faces opposing pressures of sustaining a growing population while minimizing its unfavorable outcomes on finite environmental resources<a href="#fn9" class="footnote-ref" id="fnref9" role="doc-noteref"><sup>9</sup></a>. In an effort to simultaneously move towards these goals, countries around the world have prioritized agricultural productivity. One of the most informative measures of agricultural productivity is total factor productivity (TFP). TFP compares gross outputs of crop, animal and aquaculture products to inputs of land, labor, capital and material resources utilized in farm production<a href="#fn10" class="footnote-ref" id="fnref10" role="doc-noteref"><sup>10</sup></a>. As gross output increases at a faster rate than total inputs, total factor production improves, which eases tensions on environmental resources and food security, and boosts economic growth<a href="#fn11" class="footnote-ref" id="fnref11" role="doc-noteref"><sup>11</sup></a>. TFP is expressed generally by the equation: <span class="math display">\[TFP=Y/X\]</span> where Y represents gross output and X represents total inputs.</p>
-<p>TFP is an important measure for informing policy priorities for agricultural productivity. These policies include investments in research and development, incentivizing economic reforms for farmers, rural education and extension, and improvments in infrastructure<a href="#fn12" class="footnote-ref" id="fnref12" role="doc-noteref"><sup>12</sup></a>. Understanding the effects of individual inputs on TFP can direct decision making as it relates to resource allocation for these policy investments.</p>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="usda_output.png" class="img-fluid figure-img"></p>
-</figure>
-</div>
-<p>This analysis will regress global TFP indices on inputs of land, labor, capital, and materials to examine the effects of these inputs on gross outputs. This regression can be utilized to maximize TFP growth rates by differentiating efficiency levels of individual inputs as they relate to gross productivity, which can direct resource allocation to technological improvements of inefficient input systems.</p>
-<p>Additionally, it will examine TFP growth rates for country groupings of income class (defined by the <a href="https://blogs.worldbank.org/opendata/new-world-bank-country-classifications-income-level-2021-2022">World Bank</a>) by testing for mean differences. It will also forecast TFP growth rates for years 2020-2030 at a global scale and for income classes by employing automated autoregressive moving average (ARIMA) models. Understanding nuances in TFP growth for varying income scales can be useful in further research to refine regressions that direct policy prioritization.</p>
-<p>All relevant analysis outputs are included in the Analysis section - for detailed code concerning model checking, reference the Model Testing and Supporting Figures section.</p>
-</section>
-<section id="data-1" class="level3">
-<h3 class="anchored" data-anchor-id="data-1">Data</h3>
-<p>Data used in this analysis is sourced from the United States Department of Agriculture’s (USDA) Economic Research Services<a href="#fn13" class="footnote-ref" id="fnref13" role="doc-noteref"><sup>13</sup></a>. This data is publicly available <a href="https://www.ers.usda.gov/data-products/international-agricultural-productivity/">here</a>. Data files contain annual indices for agricultural TFP, outputs, and inputs for individual countries, major global regions, and countries grouped by income levels for years 1961-2020. Detailed data on land, labor, capital and material inputs used to construct TFP indices is also included, but are not contained in the subsetted data used for the purposes of this particular analysis. TFPs are indexed with a base year of 2015 such that TFP values for countries and regions are set to 100 in 2015.</p>
-<p>It is relevant to note that TFP index comparison between geographical regions provides information regarding TFP growth rates, but is not informative for direct comparison of productivity levels.</p>
-<pre class="{r}"><code># #country plot data 
-# tfp_country_p &lt;- tfp_all |&gt; 
-#   filter(level == 'Country',
-#          income %in% c('HI', 'MI-U', 'MI-L', 'LI')) |&gt; 
-#   select(year, tfp_index, income) |&gt; 
-#   group_by(income, year) |&gt; 
-#   summarize_all(mean, na.rm = TRUE)
-# 
-# #country income factor levels
-# tfp_country_p$income &lt;- factor(tfp_country_p$income, levels = c('HI', 'MI-U', 'MI-L', 'LI'))
-# 
-# #income class TFP plot
-# tfp_country_plot &lt;- ggplot(data=tfp_country_p) +
-#   geom_line(aes(x=year, y=tfp_index, group=income, color=income), alpha = 0.5) + 
-#   theme_minimal() +
-#   labs(y = 'TFP Index', x = 'Year') +
-#   scale_x_discrete(breaks = scales::pretty_breaks(n=10)) +
-#   scale_color_discrete(name = 'Income Class') +
-#   theme(plot.title = element_text(hjust = 0.5))
-# 
-# #global TFP plot
-# tfp_world_plot &lt;- ggplot(data = tfp_world) + 
-#   geom_line(aes(x=year, y=tfp_index, group = 1)) + 
-#   labs(y = 'TFP Index') +
-#   theme_minimal()  +
-#   scale_x_discrete(breaks = scales::pretty_breaks(n=10)) 
-# 
-# #income class + global TFP plot
-# subplot(tfp_world_plot, tfp_country_plot, nrows = 2, shareX = TRUE, shareY= TRUE) |&gt; 
-#           layout(title = list(text = 'Fig 1. Total Factor Production Indices (1961-2020)', font = list(size = 12)), xaxis = list(x = 0.5,  
-#     y = 0,  
-#     text = "Income Class Grouped",  
-#     xref = "paper",  
-#     yref = "paper",  
-#     xanchor = "center",  
-#     yanchor = "bottom",  
-#     showarrow = FALSE),
-#                  annotations = list(list(x = 0.03,  
-#     y = 0.95,  
-#     text = "Global",  
-#     xref = "paper",  
-#     yref = "paper",  
-#     xanchor = "center",  
-#     yanchor = "bottom",  
-#     showarrow = FALSE) , list(x = 0.13,  
-#     y = 0.4,  
-#     text = "Income Class Grouped",  
-#     xref = "paper",  
-#     yref = "paper",  
-#     xanchor = "center",  
-#     yanchor = "bottom",  
-#     showarrow = FALSE)))</code></pre>
-</section>
-<section id="analysis-1" class="level3">
-<h3 class="anchored" data-anchor-id="analysis-1">Analysis</h3>
-<section id="multiple-linear-regression-1" class="level4">
-<h4 class="anchored" data-anchor-id="multiple-linear-regression-1">Multiple Linear Regression</h4>
-<p>A stepwise regression is performed to compare a linear model containing no predictors to a full linear model containing all input variables (land, labor, capital, and materials). The results of this regression suggest that materials are not a relevant predictor in estimating TFP. Consequently, we opt for a model containing three predictor variables: land, labor, capital.</p>
-<p>Full model: <span class="math display">\[TFP = \beta_0 + \beta_1*land_i + \beta_2*labor_i + \beta_3*capital_i + \beta_4 * materials_i + \varepsilon_i\]</span></p>
-<p>Reduced model: <span class="math display">\[TFP = \beta_0 + \beta_1*land_i + \beta_2*labor_i + \beta_3*capital_i  + \varepsilon_i\]</span></p>
-<p>The r-squared, adjusted r-squared, and Mallow’s Cp values of the leaps procedure affirm that this model is optimal in predictive accuracy. A pairwise analysis of the reduced predictor variables suggests that there may be significant variable interactions. A second stepwise regression is performed with a full linear model containing all interactions between refined predictor variables, which suggests that there is a significant interaction between land and capital inputs. Therefore, we include this interaction term in the refined model.</p>
-<p>Full model: <span class="math display">\[TFP = \beta_0 + \beta_1*land_i + \beta_2*labor_i + \beta_3*capital_i  + \beta_4*land_i:capital_i + \\ \beta_5*land_i:labor_i + \beta_6*land_i:capital_i + \varepsilon_i\]</span></p>
-<p>Reduced model: <span class="math display">\[TFP = \beta_0 + \beta_1*land_i + \beta_2*labor_i + \beta_3*capital_i + \beta_4 * land_i:capital_i + \varepsilon_i\]</span></p>
-<p>The Normal Q-Q plot of the residuals evidences slight non-normality. A log transformation of the response variable, TFP, is performed for normalization.</p>
-<p>A summary of the updated model is evaluated. A Residuals vs.&nbsp;Fitted plot displays a roughly even spread of residuals around the zero line, which suggests that equal variance and linearity assumptions are satisfied. A Normal Q-Q plot suggests normality given its relative linearity. Therefore, we accept the reduced and transformed model as a final model.</p>
-<p>Accepted model: <span class="math display">\[log(TFP) = \beta_0 + \beta_1*land_i + \beta_2*labor_i + \beta_3*capital_i + \beta_4 * land_i:capital_i + \varepsilon_i\]</span></p>
-<pre class="{r}"><code>#multiple regression model
-model2 &lt;- lm(log(y) ~ x1+x2+x3+x2:x1)
-
-#summary table for linear regression
-tab_model(model2, 
-          pred.labels = c('Intercept', 'Land',
-                          'Labor', 'Capital', 'Land * Capital'),
-          dv.labels = 'Log Total Factor Production',
-          string.ci = '95% Conf. Interval',
-          string.p = 'P-value',
-          title = 'Tbl 1. Transformed Linear Model Results for TFP Regression',
-          digits = 7)</code></pre>
-<p>Given coefficient estimates of our performed regression, the final model is represented as: <span class="math display">\[log(TFP) = 4.515429 + 0.0008662*land_i - 0.0019178*labor_i - 0.0000779*capital_i + \\ 0.0000062 * land_i:capital_i + \varepsilon_i\]</span> The model regression indicates that capital is not a significant predictor variable (p = 0.117); however, all other predictor variables are found to be significant at the 0.001 level (p &lt; 0.001 for all remaining variables). Given that the interaction between land and capital variables is significant (p &lt; 0.001), we opt to preserve capital as a predictor variable in spite of its insignificant predictive power. It is relevant to note that the model summary values are based off of a log-transformed model - for interpretability of these results, it is recommended an inverse transformation be performed on the model estimates. In spite of this, given the signs of the estimates, it can be noted that labor and capital inputs are negatively correlated with TFP, while land and land/capital interaction inputs are positively correlated with TFP. The overall predictive power of the model is low (evidenced by adjusted r-squared = 0.075), which suggests that it is not well equipped to accurately predict TFP variability.</p>
-</section>
-<section id="differences-in-means-for-varying-world-economies-1" class="level4">
-<h4 class="anchored" data-anchor-id="differences-in-means-for-varying-world-economies-1">Differences in Means for Varying World Economies</h4>
-<p>We move to performing statistical tests to compare means of TFP indices between countries grouped by income class: low income (LI), lower-middle income (MI-L), upper-middle income (MI-U), high income (HI). Our first step is to visualize the distribution of the data for all income classes.</p>
-<pre class="{r}"><code>#income class factors
-tfp_income &lt;- tfp_country |&gt; 
-  select(income, tfp_index) |&gt;
-  filter(income %in% c('LI','MI-U','HI','MI-L')) |&gt; 
-  mutate(income = as.factor(income))
-
-#distribution visualization for income class factor data
-violin_plot &lt;- ggviolin(tfp_income, x='income', y='tfp_index', fill = 'income', 
-         order = c('LI', 'MI-L', 'MI-U', 'HI'), 
-         ylab = 'TFP Index', xlab = 'Income Class',
-         draw_quantiles = 0.5, add = 'boxplot') 
-ggpar(violin_plot, legend.title = 'Income Class', xlab = '',
-      caption = 'Fig 2. Distribution of TFP Indices for Varying Income Classes',
-      ggtheme = theme_minimal())</code></pre>
-<p>Given that there are significant outliers in each income class, mean differences are tested using Kruskal-Wallis and Dunn tests, both non-parametric methods that have no assumptions of normality.</p>
-<p>The null hypothesis: <span class="math display">\[H_0: \mu_{low}=\mu_{mid-low} = \mu_{mid-high} = \mu_{high}\]</span></p>
-<p>The alternative hypothesis:</p>
-<p>H<sub>A</sub>: mean TFP indices are not equal across all income classes</p>
-<pre class="{r}"><code>#kruskal test for difference in means
-income_k &lt;- kruskal_test(tfp_index ~ income, data = tfp_income)
-  
-#dunn test for difference in means 
-income_pairs_d &lt;- dunn_test(tfp_index ~ income, data = tfp_income, p.adjust.method = 'bonferroni')
-
-#vizualize difference in means 
-income_pairs_d &lt;- income_pairs_d |&gt; 
-  add_xy_position(x = 'income') 
-ggboxplot(tfp_income, x = 'income', y = 'tfp_index',
-          order = c('LI', 'MI-L', 'MI-U', 'HI')) +
-  stat_pvalue_manual(income_pairs_d, hide.ns = TRUE) +
-  labs(title = get_test_label(income_k, detailed = TRUE),
-subtitle = get_pwc_label(income_pairs_d),
-caption = 'Fig 3. Mean difference testing \n for TFP in varying income classes',
-y = 'TFP Index', x = 'Income Level') +
-  theme()</code></pre>
-<p>The Kruskal-Wallis test (p&lt;0.0001) rejects the null hypothesis; there is significant evidence to suggest that there is a difference in mean TFP indices between differing income classes. The Dunn test concludes that this difference is statistically significant between all income class pairings, indicated by significance asterisks of the above. We use this information primarily to validate the productivity of forecasting TFP growth at income class scales as opposed to globally, rather than for the purpose of directly comparing mean differences, since dataset indexing invalidates the capacity for direct productivity comparisons between groups.</p>
-</section>
-<section id="tfp-growth-forecasting-1" class="level4">
-<h4 class="anchored" data-anchor-id="tfp-growth-forecasting-1">TFP Growth Forecasting</h4>
-<p>We employ autoregressive integrated moving average (ARIMA) models to predict global and income class grouped TFP indices until year 2030.</p>
-<pre class="{r}"><code>#add dates to world data
-tfp_time &lt;- tfp_world |&gt; 
-  mutate(date = paste0(year, '-01-01'),
-         date = as.Date(date, format = '%Y-%m-%d')) |&gt; 
-  group_by(date) |&gt; 
-  summarize(tfp_index_mean = mean(tfp_index))
-
-#convert data to time series 
-ts &lt;- xts(tfp_time$tfp_index_mean, tfp_time$date)
-
-#fit ts to automated ARIMA model
-fit &lt;- auto.arima(ts)
-
-#visualize global forecasts 
-pred.tr &lt;- predict(fit, n.ahead=10)
-U.tr &lt;- pred.tr$pred + 2*pred.tr$se
-L.tr &lt;- pred.tr$pred - 2*pred.tr$se
-ts.plot(ts, xlim=c(0,length(ts)+12), ylim=c(min(ts),max(ts)+20))
-title(main = 'Forecasted TFP Indices for Global Data', sub = 'Fig 4. Forecasts for ARIMA(2,2,1) Model with 95% Confidence Intervals', cex.sub = 0.65)
-legend('topleft', inset = 0.02,
-       legend = c('Forecast', '95% CI'),
-       col = c('red', 'blue'),
-       lty = c(1,2))
-lines(U.tr, col='blue', lty='dashed')
-lines(L.tr, col='blue', lty='dashed')
-lines((length(ts)+1):(length(ts)+10), pred.tr$pred, col='red')</code></pre>
-<p>Based on historical trend, the forecast anticipates that global TFP will continue to grow in the coming decade. We look to forecasted values for more detailed information concerning this growth.</p>
-<pre class="{r}"><code>#income class forecasts 
-pred.hi &lt;- predict(fit_hi, n.ahead=10)
-pred.li &lt;- predict(fit_li, n.ahead=10)
-pred.mi &lt;- predict(fit_mi, n.ahead=10)
-pred.mil &lt;- predict(fit_mil, n.ahead=10)
-year &lt;- c(2021, 2022, 2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030)
-
-#forecast data frame 
-predictions &lt;- data.frame(year, pred.li$pred, pred.mil$pred, pred.mi$pred, pred.hi$pred, pred.tr$pred) 
-colnames(predictions) &lt;- c('Year', 'Low Income', 'Lower-Middle Income', 'Upper-Middle Income', 'High Income', 'World')
-predictions |&gt; 
-  kbl(caption = 'Tbl 2. Predicted TFP Indices') |&gt; 
-  kable_styling(bootstrap_options = 'striped', full_width = F)</code></pre>
-<p>The automated models for income class groups predict that low income and upper-middle income class countries will see no change in TFP indices throughout the forecasted decade. The models also predict that lower-middle income and high income countries will experience steady growth in TFP indices, which is reflected similarly in predicted consistent TFP growth for non-grouped world data.</p>
-</section>
-</section>
-<section id="discussion-1" class="level3">
-<h3 class="anchored" data-anchor-id="discussion-1">Discussion</h3>
-<p>The maximization of agricultural total factor productivity will promote sustainable economic growth and can be used as a tool to ease the environmental burden of agriculture, so understanding the effects of inputs in TFP is pertinent to resource allocation in policy drivers.</p>
-<p>Results of the linear regression evidence that only land, labor, and land/capital interaction inputs are significant predictors of TFP, although we preserve capital inputs in our model due to its significance in interaction terms. The global model’s coefficient estimates indicate that land and land/capital interaction inputs are positively correlated with TFP - that is, growth rates of these inputs correlate to comparatively larger growth rates of gross outputs. Inversely, labor and capital inputs are negatively correlated with TFP - while increased inputs of these variables may increase total outputs, the growth rate of associated outputs is smaller than than the growth rate of its inputs.</p>
-<p>For quantitative interpretations, we would transform summary coefficients following the equation <span class="math display">\[(\exp(coefficient.estimate)-1)*100\]</span> such that they reflect percent increases (as opposed to unit increases) of the response variable, TFP, for one-unit increases in associated input variables.</p>
-<p>Mean testing indicates that there is a statistically significant difference in mean TFP values between all income class pairs. A one-sided test of means may offer more insight regarding income class TFP distinctions.</p>
-<p>The time series forecasting of TFP indices exhibits predicted increases in global TFP indices in the next decade, yet only lower-middle income and high income classifications are expected to see growing TFP, while low income and upper-middle income classifications are predicted to stagnate. As it pertains to low-income countries, it is reasonable to assume that there is limited flexibility for expenditure on the research and development that TFP growth necessitates, so this stagnation is largely unsurprising. A potential explanation for upper-middle income TFP stagnation is the <a href="https://elibrary.worldbank.org/doi/10.1596/9780821387856_CH04">“middle-income trap”</a><a href="#fn14" class="footnote-ref" id="fnref14" role="doc-noteref"><sup>14</sup></a>. However, these theories are largely assumptive. Cross-country differences in TFP growth within income classes is highly variable and depend on numerous factors including research and development, enabling environments, and economically disruptive shocks<a href="#fn15" class="footnote-ref" id="fnref15" role="doc-noteref"><sup>15</sup></a>, so forecasting measures are expected to be more informative and accurate for predictive models fit to a particular country of interest.</p>
-</section>
-<section id="further-research-1" class="level3">
-<h3 class="anchored" data-anchor-id="further-research-1">Further Research</h3>
-<p>Under the produced linear model, only 7.5% of variation in global TFP is explained by the model’s input variables (Tbl 1). It is reasonable to expect that a global model utilizing detailed land, labor, capital, and materials variables may perform better than a model comprised of only their summative indexes. A best fitting model to inform policy prioritization will be tailored to a particular country of interest, which eliminates the variability of cross-country differences in TFP.</p>
-<p>Furthermore, some of the residuals of the automated predictive models appear to be significant beyond the randomness of white noise (see Model Checking and Supporting Figures), which implies potential to produce more accurate forecasting models for income class groupings.</p>
-<p>Finally, current measures of TFP do not factor environmental impacts. Growing productivity rates ease natural resource demand in agriculture, which lessens pressure on finite environmental reserves; however, higher productivity can also result in higher externalities that negatively impact the environment. The <a href="https://www.oecd.org/agriculture/topics/network-agricultural-productivity-and-environment/">Network on Agricultural TFP and the Environment</a>, launched in 2017, aims to develop a framework for cross-country agricultural TFP comparisons to help address this issue<a href="#fn16" class="footnote-ref" id="fnref16" role="doc-noteref"><sup>16</sup></a>.</p>
-</section>
-<section id="conclusion-1" class="level3">
-<h3 class="anchored" data-anchor-id="conclusion-1">Conclusion</h3>
-<p>This analysis lends itself to understanding how policy priorities can be shaped to maximize agricultural TFP growth through individual inputs, and examines the differences of this index across various levels of income class.</p>
-</section>
-<section id="model-testing-and-supporting-figures-1" class="level3">
-<h3 class="anchored" data-anchor-id="model-testing-and-supporting-figures-1">Model Testing and Supporting Figures</h3>
-<p>Full analysis code is available <a href="https://github.com/gabriellensmith/tfp-statistics.git">here</a>. Model testing and supporting figures contains various steps of regression model fitting and checking, as well as model fitting and checking for income class grouped ARIMA models.</p>
-<pre class="{r}"><code>#regression model variable assignments 
-y &lt;- tfp_country$tfp_index
-x1 &lt;- tfp_country$land_index
-x2 &lt;- tfp_country$labor_index
-x3 &lt;- tfp_country$capital_index
-x4 &lt;- tfp_country$materials_index
-
-#lower model
-mod0 &lt;- lm(y~1)
-#upper model
-mod_upper &lt;- lm(y~x1+x2+x3+x4)
-#stepwise regression for model selection 
-#step(mod0, scope=list(lower = mod0, upper=mod_upper))</code></pre>
-<pre class="{r}"><code>#r-squared, adjusted r-squared, and Mallow's Cp values of reduced model 
-mod &lt;- regsubsets(cbind(x1,x2,x3),y)
-summary_mod &lt;- summary(mod)
-#Mallow's Cp
-summary_mod$which
-#r-squared values
-summary_mod$rsq
-#adjusted r-squared values
-summary_mod$adjr2
-
-#pairwise analysis of reduced variables
-pairs(cbind(x1,x2,x3), main = 'Pairwise Analysis of Reduced TFP Regression Variables', labels = c('Land', 'Labor', 'Capital'))
-
-#upper model with interaction terms 
-mod_upper1 &lt;- lm(y~x1+x2+x3+x1*x2+x1*x3+x1*x3)
-#stepwise regression for model selection 
-#step(mod0, scope=list(lower = mod0, upper=mod_upper1))
-model1 &lt;- lm(y~x1+x2+x3+x2:x1)</code></pre>
-<pre class="{r}"><code>#fitted vs. residuals checking for non-transformed model 
-plot(fitted(model1),residuals(model1))
-abline(h=0)
-title(main = 'Fitted vs. Residuals for non-transformed linear model')
-#normal qqplot for non-transformed model
-qqnorm(residuals(model1))
-qqline(residuals(model1))
-#histogram of non-transformed response variable (TFP) distribution
-hist(y, main = 'Distribution of non-transformed TFP response variable', xlab = 'TFP')</code></pre>
-<pre class="{r}"><code>#log transformed model 
-model2 &lt;- lm(log(y) ~ x1+x2+x3+x2:x1)
-
-#fitted vs. residuals checking for log transformed model 
-plot(fitted(model2),residuals(model2))
-abline(h=0)
-title(main = 'Fitted vs. Residuals for log-transformed model')
-#normal qqplot for log transformed model
-qqnorm(residuals(model2))
-qqline(residuals(model2))
-#histogram of log transformed response variable (TFP) distribution
-hist(log(y), main = 'Distribution of log transformed TFP', xlab = 'log(TFP)')</code></pre>
-<pre class="{r}"><code>#low income forecasting 
-tfp_time_li &lt;- tfp_country |&gt; 
-  filter(income == 'LI') |&gt; 
-  mutate(date = paste0(year, '-01-01'),
-         date = as.Date(date, format = '%Y-%m-%d')) |&gt; 
-  group_by(date) |&gt; 
-  summarize(tfp_index_mean = mean(tfp_index))
-
-ts_li &lt;- xts(tfp_time_li$tfp_index_mean, tfp_time_li$date)
-
-fit_li &lt;- auto.arima(ts_li)
-
-#checking residuals 
-checkresiduals(fit_li)</code></pre>
-<pre class="{r}"><code>#lower-middle income forecasting 
-tfp_time_mil &lt;- tfp_country |&gt; 
-  filter(income == 'MI-L') |&gt; 
-  mutate(date = paste0(year, '-01-01'),
-         date = as.Date(date, format = '%Y-%m-%d')) |&gt; 
-  group_by(date) |&gt; 
-  summarize(tfp_index_mean = mean(tfp_index))
-
-ts_mil &lt;- xts(tfp_time_mil$tfp_index_mean, tfp_time_mil$date)
-
-fit_mil &lt;- auto.arima(ts_mil)
-
-#checking residuals 
-checkresiduals(fit_mil)</code></pre>
-<pre class="{r}"><code>#upper-middle income forecasting 
-tfp_time_mi &lt;- tfp_country |&gt; 
-  filter(income == 'MI-U') |&gt; 
-  mutate(date = paste0(year, '-01-01'),
-         date = as.Date(date, format = '%Y-%m-%d')) |&gt; 
-  group_by(date) |&gt; 
-  summarize(tfp_index_mean = mean(tfp_index))
-
-ts_mi &lt;- xts(tfp_time_mi$tfp_index_mean, tfp_time_mi$date)
-
-fit_mi &lt;- auto.arima(ts_mi)
-
-#checking residuals 
-checkresiduals(fit_mi)</code></pre>
-<pre class="{r}"><code>#high income forecasting 
-tfp_time_hi &lt;- tfp_country |&gt; 
-  filter(income == 'HI') |&gt; 
-  mutate(date = paste0(year, '-01-01'),
-         date = as.Date(date, format = '%Y-%m-%d')) |&gt; 
-  group_by(date) |&gt; 
-  summarize(tfp_index_mean = mean(tfp_index))
-
-ts_hi &lt;- xts(tfp_time_hi$tfp_index_mean, tfp_time_hi$date)
-
-fit_hi &lt;- auto.arima(ts_hi)
-
-#checking residuals 
-checkresiduals(fit_hi)</code></pre>
 </section>
 
 
@@ -1204,14 +884,6 @@ checkresiduals(fit_hi)</code></pre>
 <li id="fn6"><p>Griffith B. Middle-Income Trap. In: Frontiers in Development Policy. The World Bank; 2011:39-43.<a href="#fnref6" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 <li id="fn7"><p>Fuglie K, Wang SL. New Evidence Points to Robust But Uneven Productivity Growth in Global Agriculture. Usda.gov. Published September 20, 2012. Accessed December 4, 2022. https://www.ers.usda.gov/amber-waves/2012/september/global-agriculture/<a href="#fnref7" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 <li id="fn8"><p>Network on Agricultural Total Factor Productivity and the Environment. Oecd.org. Accessed December 4, 2022. https://www.oecd.org/agriculture/topics/network-agricultural-productivity-and-environment/<a href="#fnref8" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn9"><p>Network on Agricultural Total Factor Productivity and the Environment. Oecd.org. Accessed December 4, 2022. https://www.oecd.org/agriculture/topics/network-agricultural-productivity-and-environment/<a href="#fnref9" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn10"><p>Fuglie K, Jelliffe J, Morgan S. Documentation and methods. Usda.gov. Published October 7, 2022. Accessed December 4, 2022. https://www.ers.usda.gov/data-products/international-agricultural-productivity/documentation-and-methods/<a href="#fnref10" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn11"><p>Fuglie K, Jelliffe J, Morgan S. Documentation and methods. Usda.gov. Published October 7, 2022. Accessed December 4, 2022. https://www.ers.usda.gov/data-products/international-agricultural-productivity/documentation-and-methods/<a href="#fnref11" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn12"><p>Fuglie K, Wang SL. New Evidence Points to Robust But Uneven Productivity Growth in Global Agriculture. Usda.gov. Published September 20, 2012. Accessed December 4, 2022. https://www.ers.usda.gov/amber-waves/2012/september/global-agriculture/<a href="#fnref12" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn13"><p>Fuglie K, Jelliffe J, Morgan S. International agricultural productivity. Usda.gov. Published October 7, 2022. Accessed December 4, 2022. https://www.ers.usda.gov/data-products/international-agricultural-productivity/<a href="#fnref13" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn14"><p>Griffith B. Middle-Income Trap. In: Frontiers in Development Policy. The World Bank; 2011:39-43.<a href="#fnref14" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn15"><p>Fuglie K, Wang SL. New Evidence Points to Robust But Uneven Productivity Growth in Global Agriculture. Usda.gov. Published September 20, 2012. Accessed December 4, 2022. https://www.ers.usda.gov/amber-waves/2012/september/global-agriculture/<a href="#fnref15" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn16"><p>Network on Agricultural Total Factor Productivity and the Environment. Oecd.org. Accessed December 4, 2022. https://www.oecd.org/agriculture/topics/network-agricultural-productivity-and-environment/<a href="#fnref16" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

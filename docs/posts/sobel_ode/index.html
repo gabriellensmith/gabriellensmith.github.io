@@ -6,6 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Gabrielle Smith">
 <meta name="dcterms.date" content="2023-05-22">
 <meta name="description" content="A sensitivity analysis example modeling forest growth.">
 
@@ -158,15 +159,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <nav id="TOC" role="doc-toc" class="toc-active">
     <h2 id="toc-title">On this page</h2>
    
-  <ul class="incremental">
+  <ul>
   <li><a href="#description" id="toc-description" class="nav-link active" data-scroll-target="#description">Description</a></li>
   <li><a href="#implementing-the-model" id="toc-implementing-the-model" class="nav-link" data-scroll-target="#implementing-the-model">Implementing the Model</a></li>
   <li><a href="#running-the-model-with-set-parameters" id="toc-running-the-model-with-set-parameters" class="nav-link" data-scroll-target="#running-the-model-with-set-parameters">Running the Model with Set Parameters</a></li>
   <li><a href="#running-a-sobol-global" id="toc-running-a-sobol-global" class="nav-link" data-scroll-target="#running-a-sobol-global">Running a Sobol Global</a></li>
-  <li><a href="#description-1" id="toc-description-1" class="nav-link" data-scroll-target="#description-1">Description</a></li>
-  <li><a href="#implementing-the-model-1" id="toc-implementing-the-model-1" class="nav-link" data-scroll-target="#implementing-the-model-1">Implementing the Model</a></li>
-  <li><a href="#running-the-model-with-set-parameters-1" id="toc-running-the-model-with-set-parameters-1" class="nav-link" data-scroll-target="#running-the-model-with-set-parameters-1">Running the Model with Set Parameters</a></li>
-  <li><a href="#running-a-sobol-global-1" id="toc-running-a-sobol-global-1" class="nav-link" data-scroll-target="#running-a-sobol-global-1">Running a Sobol Global</a></li>
   </ul>
 </nav>
     </div>
@@ -206,7 +203,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">2023-05-22</p>
+      <p class="date">May 22, 2023</p>
     </div>
   </div>
   
@@ -220,7 +217,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="description">Description</h2>
 <p>In this post, I perform a Sobol sensitivity analysis with an ODE (ordinary differential equation). This analysis is derived from an assignment for EDS230: Modeling Environmental Systems, as part of the curriculum for UCSB’s Master’s of Environmental Data Science program.</p>
 <p>Sobol sensitivity analysis is a variance-based approach designed to efficiently sample a parameter space. Sobol quantifies sensitivity by breaking variance outputs into several indices, which are computed using parameter-output variance relationships. These indices include:</p>
-<ul class="incremental">
+<ul>
 <li>First Order Sensitivity (Main Effect): variance associated directly with parameter alone</li>
 <li>Total Effect: variance associated with parameter and interaction with other parameters</li>
 <li>Second Order Indices: quantification of how parameter pair-wise parameter interactions contribute to output variation</li>
@@ -258,7 +255,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="running-the-model-with-set-parameters" class="level2">
 <h2 class="anchored" data-anchor-id="running-the-model-with-set-parameters">Running the Model with Set Parameters</h2>
 <p>Once the model is implemented, we run the model for 300 years using given parameters, where there is no uncertainty. We begin with an initial forest size of 10 kg/C and the following parameters:</p>
-<ul class="incremental">
+<ul>
 <li>canopy closure threshold of 50 kgC</li>
 <li><em>K</em> = 250 kg C (carrying capacity)</li>
 <li><em>r</em> = 0.01 (exponential growth rate before canopy closure)</li>
@@ -323,7 +320,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="running-a-sobol-global" class="level2">
 <h2 class="anchored" data-anchor-id="running-a-sobol-global">Running a Sobol Global</h2>
 <p>After we have run the model with given parameters, we run a sobol global sensitivity analysis, varying all parameters at the same time. This will help us to explore how the estimated <strong>maximum forest size</strong> varies within the parameters:</p>
-<ul class="incremental">
+<ul>
 <li>pre-canopy closure growth rate (<em>r</em>)</li>
 <li>post-canopy closure growth rate (<em>g</em>)</li>
 <li>canopy closure threshold and carrying capacity (<em>K</em>)</li>
@@ -457,35 +454,35 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">ct</td>
-<td style="text-align: right;">0.0289291</td>
-<td style="text-align: right;">0.0030741</td>
-<td style="text-align: right;">0.0579539</td>
-<td style="text-align: right;">-0.0883667</td>
-<td style="text-align: right;">0.1443944</td>
+<td style="text-align: right;">0.0535712</td>
+<td style="text-align: right;">0.0041386</td>
+<td style="text-align: right;">0.0589892</td>
+<td style="text-align: right;">-0.0559964</td>
+<td style="text-align: right;">0.1613757</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">k</td>
-<td style="text-align: right;">0.3119509</td>
-<td style="text-align: right;">0.0017883</td>
-<td style="text-align: right;">0.0592179</td>
-<td style="text-align: right;">0.1853595</td>
-<td style="text-align: right;">0.4378133</td>
+<td style="text-align: right;">0.3609487</td>
+<td style="text-align: right;">0.0015147</td>
+<td style="text-align: right;">0.0547030</td>
+<td style="text-align: right;">0.2594734</td>
+<td style="text-align: right;">0.4711013</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">r</td>
-<td style="text-align: right;">0.3574912</td>
-<td style="text-align: right;">-0.0021605</td>
-<td style="text-align: right;">0.0568834</td>
-<td style="text-align: right;">0.2467880</td>
-<td style="text-align: right;">0.4698169</td>
+<td style="text-align: right;">0.3166746</td>
+<td style="text-align: right;">0.0019369</td>
+<td style="text-align: right;">0.0588323</td>
+<td style="text-align: right;">0.1962994</td>
+<td style="text-align: right;">0.4350840</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">g</td>
-<td style="text-align: right;">0.1462864</td>
-<td style="text-align: right;">0.0041816</td>
-<td style="text-align: right;">0.0629863</td>
-<td style="text-align: right;">0.0177222</td>
-<td style="text-align: right;">0.2618441</td>
+<td style="text-align: right;">0.2003974</td>
+<td style="text-align: right;">0.0028063</td>
+<td style="text-align: right;">0.0532262</td>
+<td style="text-align: right;">0.0877141</td>
+<td style="text-align: right;">0.3037629</td>
 </tr>
 </tbody>
 </table>
@@ -512,35 +509,35 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">ct</td>
-<td style="text-align: right;">0.0735177</td>
-<td style="text-align: right;">0.0003958</td>
-<td style="text-align: right;">0.0073669</td>
-<td style="text-align: right;">0.0581179</td>
-<td style="text-align: right;">0.0858989</td>
+<td style="text-align: right;">0.0559747</td>
+<td style="text-align: right;">0.0005506</td>
+<td style="text-align: right;">0.0060035</td>
+<td style="text-align: right;">0.0428226</td>
+<td style="text-align: right;">0.0667686</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">k</td>
-<td style="text-align: right;">0.3454228</td>
-<td style="text-align: right;">-0.0000529</td>
-<td style="text-align: right;">0.0395123</td>
-<td style="text-align: right;">0.2640661</td>
-<td style="text-align: right;">0.4232375</td>
+<td style="text-align: right;">0.3502126</td>
+<td style="text-align: right;">0.0002552</td>
+<td style="text-align: right;">0.0352006</td>
+<td style="text-align: right;">0.2790502</td>
+<td style="text-align: right;">0.4169600</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">r</td>
-<td style="text-align: right;">0.4382633</td>
-<td style="text-align: right;">0.0004716</td>
-<td style="text-align: right;">0.0527044</td>
-<td style="text-align: right;">0.3202956</td>
-<td style="text-align: right;">0.5390899</td>
+<td style="text-align: right;">0.3385371</td>
+<td style="text-align: right;">0.0041040</td>
+<td style="text-align: right;">0.0363116</td>
+<td style="text-align: right;">0.2525754</td>
+<td style="text-align: right;">0.3986892</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">g</td>
-<td style="text-align: right;">0.1810172</td>
-<td style="text-align: right;">0.0012797</td>
-<td style="text-align: right;">0.0220721</td>
-<td style="text-align: right;">0.1332663</td>
-<td style="text-align: right;">0.2220225</td>
+<td style="text-align: right;">0.2256922</td>
+<td style="text-align: right;">0.0015620</td>
+<td style="text-align: right;">0.0240854</td>
+<td style="text-align: right;">0.1751392</td>
+<td style="text-align: right;">0.2664142</td>
 </tr>
 </tbody>
 </table>
@@ -553,185 +550,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <!-- -->
 
-</section>
-<section id="description-1" class="level2">
-<h2 class="anchored" data-anchor-id="description-1">Description</h2>
-<p>In this post, I perform a Sobol sensitivity analysis with an ODE (ordinary differential equation). This analysis is derived from an assignment for EDS230: Modeling Environmental Systems, as part of the curriculum for UCSB’s Master’s of Environmental Data Science program.</p>
-<p>Sobol sensitivity analysis is a variance-based approach designed to efficiently sample a parameter space. Sobol quantifies sensitivity by breaking variance outputs into several indices, which are computed using parameter-output variance relationships. These indices include:</p>
-<ul class="incremental">
-<li>First Order Sensitivity (Main Effect): variance associated directly with parameter alone</li>
-<li>Total Effect: variance associated with parameter and interaction with other parameters</li>
-<li>Second Order Indices: quantification of how parameter pair-wise parameter interactions contribute to output variation</li>
-</ul>
-<p>In this example, we consider the following model of forest growth (where forest size is measures in units of carbon (C)):</p>
-<p><em>dC/dt = r ⋅ C</em> for forests where C is below a threshold canopy closure</p>
-<p><em>dC/dt = g ⋅ (1 - C/k)</em> for forests where carbon is at or above the threshold canopy closure and K is a carrying capacity in units of carbon</p>
-<p>The size of the forest <em>(C)</em>, canopy closure threshold and carrying capacity are all in units of carbon. We think of the canopy closure threshold as the size of the forest at which growth rates change from exponential to linear, and we observe <em>r</em>, as early exponential growth rate and <em>g</em> as the linear growth rate once canopy closure is reached.</p>
-</section>
-<section id="implementing-the-model-1" class="level2">
-<h2 class="anchored" data-anchor-id="implementing-the-model-1">Implementing the Model</h2>
-<p>We begin the sensitivity analysis by implementing the model as a differential equation.</p>
-<p><code>{r include=FALSE} # packages rm(list = ls()) if ("package:kableExtra" %in% search()) {   detach("package:kableExtra", unload=TRUE) } library(tidyverse) library(deSolve) library(sensitivity) library(knitr) library(kableExtra) library(sjPlot)</code></p>
-<pre class="{r}"><code># carbon model
-
-# c = forest size in measured in units of carbon
-# ct = canopy threshold
-# r = exponential growth rate
-# g = linear growth rate at canopy closure
-# k = carrying capacity
-
-carbon_model &lt;- function(Time, c, params) {
-  
-  ifelse(c &lt; params$ct, 
-          delta &lt;- params$r * c,
-          delta &lt;- params$g * (1 - (c/params$k)))
-  
-  return(list(delta))
-}</code></pre>
-</section>
-<section id="running-the-model-with-set-parameters-1" class="level2">
-<h2 class="anchored" data-anchor-id="running-the-model-with-set-parameters-1">Running the Model with Set Parameters</h2>
-<p>Once the model is implemented, we run the model for 300 years using given parameters, where there is no uncertainty. We begin with an initial forest size of 10 kg/C and the following parameters:</p>
-<ul class="incremental">
-<li>canopy closure threshold of 50 kgC</li>
-<li><em>K</em> = 250 kg C (carrying capacity)</li>
-<li><em>r</em> = 0.01 (exponential growth rate before canopy closure)</li>
-<li><em>g</em> = 2 kg/year (linear growth rate after canopy closure)</li>
-</ul>
-<pre class="{r}"><code># initial forest size
-c_init &lt;- 10
-
-# assignment of inital perameters
-param &lt;- list(
-  ct = 50,
-  k = 250,
-  r = 0.01,
-  g = 2
-)
-
-# 300 year simulation time
-simtimes &lt;- seq(from=1, to=300)</code></pre>
-<p>We utilize the ODE solver to run the model for 300 years</p>
-<pre class="{r}"><code># ODE solver implementation
-result &lt;- ode(times = simtimes, 
-              y = c(c = c_init), 
-              func = carbon_model, 
-              parms = param)
-
-# column renaming
-colnames(result) &lt;- c("time","carbon")
-
-# store results as a data frame
-result &lt;-  as.data.frame(result)</code></pre>
-<p>and then graph the trajectory results.</p>
-<pre class="{r}"><code># graphing results 
-ggplot(data = result, mapping = aes(x = time, y = carbon)) +
-  geom_point(color = "darkblue", size = 3, alpha = 0.6) +
-  labs(title = "Carbon Levels Over Time",
-       x = "Time",
-       y = "Carbon",
-       caption = "Source: Your data source") +
-  theme_minimal() +
-  theme(plot.title = element_text(face = "bold", hjust = 0.5),
-        axis.title = element_text(face = "bold"),
-        plot.caption = element_text(hjust = 1))</code></pre>
-</section>
-<section id="running-a-sobol-global-1" class="level2">
-<h2 class="anchored" data-anchor-id="running-a-sobol-global-1">Running a Sobol Global</h2>
-<p>After we have run the model with given parameters, we run a sobol global sensitivity analysis, varying all parameters at the same time. This will help us to explore how the estimated <strong>maximum forest size</strong> varies within the parameters:</p>
-<ul class="incremental">
-<li>pre-canopy closure growth rate (<em>r</em>)</li>
-<li>post-canopy closure growth rate (<em>g</em>)</li>
-<li>canopy closure threshold and carrying capacity (<em>K</em>)</li>
-</ul>
-<p>For this exercise, we assume that parameters are all normally distributed with means as given in initial parameters and standard deviation of 10% of the mean value.</p>
-<pre class="{r}"><code>#set base params
-ct_base = 50
-k_base = 250
-r_base = 0.01
-g_base = 2
-
-#set sd multiplier
-sd = 0.1
-
-#first set of parameter samples
-ct &lt;- rnorm(mean=ct_base, sd=ct_base*sd, n=300)
-k &lt;- rnorm(mean=k_base, sd=k_base*sd, n=300)
-r &lt;- rnorm(mean=r_base, sd=r_base*sd, n=300)
-g &lt;- rnorm(mean=g_base, sd=g_base*sd, n=300)
-X1 = cbind.data.frame(ct=ct, k=k, r=r, g=g)
-
-#repeat the process
-ct &lt;- rnorm(mean=ct_base, sd=ct_base*sd, n=300)
-k &lt;- rnorm(mean=k_base, sd=k_base*sd, n=300)
-r &lt;- rnorm(mean=r_base, sd=r_base*sd, n=300)
-g &lt;- rnorm(mean=g_base, sd=g_base*sd, n=300)
-X2 = cbind.data.frame(ct=ct, k=k, r=r, g=g)
-
-#mapping to account for negative values
-X1 = X1 %&gt;% map_df(pmax, 0.0)
-X2 = X2 %&gt;% map_df(pmax, 0.0)
-
-#sobol parameters
-sens_carbon &lt;- sobolSalt(model = NULL, X1, X2, nboot = 300)
-
-# naming output columns 
-colnames(sens_carbon$X) &lt;- c("ct","k", "r", "g")</code></pre>
-<pre class="{r}"><code># function to return max carbon  
-compute_max = function(results) {
-  
-  max_carbon = results$carbon[300]
-  
-  return(list(max_carbon = max_carbon))
-}
-
-# function for ODEsolve
-carbon_wrapper &lt;- function(c_initial, ct, k, r, g, simtimes, func) {
-  parms = list(ct=ct, k=k, r=r, g=g)
-  results = ode(y= c_initial, times= simtimes, func= func, parms= parms)
-  colnames(results) = c("time","carbon")
-  metrics = compute_max(as.data.frame(results))
-  return(metrics)
-}</code></pre>
-<pre class="{r}"><code>allresults = as.data.frame(sens_carbon$X) %&gt;% 
-  pmap(carbon_wrapper, 
-       c_initial=c_init, 
-       simtimes=simtimes, 
-       func=carbon_model)
-
-#take the results out of the list 
-allres = allresults %&gt;% map_dfr(`[`,c("max_carbon"))</code></pre>
-<p>We graph the results of the sensitivity analysis as a boxplot of maximum forest size and record sobol indices <strong>S</strong> and <strong>T</strong>.</p>
-<pre class="{r}"><code># box plot of max carbon
-ggplot(data = allres, aes(x = "Maximum Forest Size", y = max_carbon)) +
-  geom_boxplot(fill = "darkblue", outlier.shape = NA) +
-  labs(title = "Boxplot of Maximum Carbon Value",
-       y = "Max Carbon",
-       x = "") +
-  theme_minimal() +
-  theme(plot.title = element_text(face = "bold", hjust = 0.5),
-        axis.title.y = element_text(face = "bold"),
-        plot.caption = element_text(hjust = 1)) +
-  coord_flip()</code></pre>
-<pre class="{r}"><code># record the indices
-sens_carbon_maxcarbon = sensitivity::tell(sens_carbon,allres$max_carbon)
-
-# First-order indices table
-first_order_indices &lt;- sens_carbon_maxcarbon$S
-rownames(first_order_indices) &lt;- c("ct", "k", "r", "g")  # Rename rows with variable names
-kable_first_order &lt;- kable(first_order_indices, caption = "First-Order Indices") %&gt;%
-  kable_styling("striped", full_width = FALSE) 
-
-# Total sensitivity index table
-total_sensitivity_index &lt;- sens_carbon_maxcarbon$T
-rownames(total_sensitivity_index) &lt;- c("ct", "k", "r", "g")  # Rename rows with variable names
-kable_total_sensitivity &lt;- kable(total_sensitivity_index, caption = "Total Sensitivity Index") %&gt;%
-  kable_styling("striped", full_width = FALSE)
-
-# Print the tables
-kable_first_order
-kable_total_sensitivity</code></pre>
-<p>Considering the range of parameter variations, a shift exceeding 50% in the maximum carbon levels within the forest becomes apparent. Notably, both the first-order and total sensitivity analyses underscore the significance of the carrying capacity (k) and exponential growth rate (r) as pivotal factors in influencing the extent of variability in maximum carbon levels. Foreseeing the potential impact of climate change on forest dynamics, it is plausible to anticipate alterations in the carrying capacity. For instance, factors such as soil nutrient depletion could curtail the forest’s capacity to support tree growth. In light of this scenario, a corresponding decline in the overall carbon content within forests could be anticipated.</p>
 </section>
 
 </main> <!-- /main -->
