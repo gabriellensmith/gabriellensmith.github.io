@@ -1,0 +1,1274 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.353">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2023-05-22">
+<meta name="description" content="A sensitivity analysis example modeling forest growth.">
+
+<title>gabrielle smith - Using Sobol Sensitivity Analysis with an ODE</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+<script src="../../site_libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="../../site_libs/lightable-0.0.1/lightable.css" rel="stylesheet">
+
+
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">gabrielle smith</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html" rel="" target="">
+ <span class="menu-text">home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html" rel="" target="">
+ <span class="menu-text">about</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../posts.html" rel="" target="">
+ <span class="menu-text">posts</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../workshops.html" rel="" target="">
+ <span class="menu-text">workshops</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../GS_CV.pdf" rel="" target="">
+ <span class="menu-text">cv</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/gabriellensmith" rel="" target=""><i class="bi bi-github" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+</ul>
+            <div class="quarto-navbar-tools ms-auto">
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul class="incremental">
+  <li><a href="#description" id="toc-description" class="nav-link active" data-scroll-target="#description">Description</a></li>
+  <li><a href="#implementing-the-model" id="toc-implementing-the-model" class="nav-link" data-scroll-target="#implementing-the-model">Implementing the Model</a></li>
+  <li><a href="#running-the-model-with-set-parameters" id="toc-running-the-model-with-set-parameters" class="nav-link" data-scroll-target="#running-the-model-with-set-parameters">Running the Model with Set Parameters</a></li>
+  <li><a href="#running-a-sobol-global" id="toc-running-a-sobol-global" class="nav-link" data-scroll-target="#running-a-sobol-global">Running a Sobol Global</a></li>
+  <li><a href="#description-1" id="toc-description-1" class="nav-link" data-scroll-target="#description-1">Description</a></li>
+  <li><a href="#implementing-the-model-1" id="toc-implementing-the-model-1" class="nav-link" data-scroll-target="#implementing-the-model-1">Implementing the Model</a></li>
+  <li><a href="#running-the-model-with-set-parameters-1" id="toc-running-the-model-with-set-parameters-1" class="nav-link" data-scroll-target="#running-the-model-with-set-parameters-1">Running the Model with Set Parameters</a></li>
+  <li><a href="#running-a-sobol-global-1" id="toc-running-a-sobol-global-1" class="nav-link" data-scroll-target="#running-a-sobol-global-1">Running a Sobol Global</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title">Using Sobol Sensitivity Analysis with an ODE</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button">View Source</a></li></ul></div></div>
+</div>
+
+<div>
+  <div class="description">
+    A sensitivity analysis example modeling forest growth.
+  </div>
+</div>
+
+<div class="quarto-title-meta-author">
+  <div class="quarto-title-meta-heading">Author</div>
+  <div class="quarto-title-meta-heading">Affiliation</div>
+  
+    <div class="quarto-title-meta-contents">
+    <p class="author"><a href="https://gabriellensmith.github.io">Gabrielle Smith</a> </p>
+  </div>
+    <div class="quarto-title-meta-contents">
+        <p class="affiliation">
+            <a href="https://ucsb-meds.github.io/">
+            MEDS
+            </a>
+          </p>
+      </div>
+    </div>
+
+<div class="quarto-title-meta">
+
+      
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">2023-05-22</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="description" class="level2">
+<h2 class="anchored" data-anchor-id="description">Description</h2>
+<p>In this post, I perform a Sobol sensitivity analysis with an ODE (ordinary differential equation). This analysis is derived from an assignment for EDS230: Modeling Environmental Systems, as part of the curriculum for UCSB’s Master’s of Environmental Data Science program.</p>
+<p>Sobol sensitivity analysis is a variance-based approach designed to efficiently sample a parameter space. Sobol quantifies sensitivity by breaking variance outputs into several indices, which are computed using parameter-output variance relationships. These indices include:</p>
+<ul class="incremental">
+<li>First Order Sensitivity (Main Effect): variance associated directly with parameter alone</li>
+<li>Total Effect: variance associated with parameter and interaction with other parameters</li>
+<li>Second Order Indices: quantification of how parameter pair-wise parameter interactions contribute to output variation</li>
+</ul>
+<p>In this example, we consider the following model of forest growth (where forest size is measures in units of carbon (C)):</p>
+<p><em>dC/dt = r ⋅ C</em> for forests where C is below a threshold canopy closure</p>
+<p><em>dC/dt = g ⋅ (1 - C/k)</em> for forests where carbon is at or above the threshold canopy closure and K is a carrying capacity in units of carbon</p>
+<p>The size of the forest <em>(C)</em>, canopy closure threshold and carrying capacity are all in units of carbon. We think of the canopy closure threshold as the size of the forest at which growth rates change from exponential to linear, and we observe <em>r</em>, as early exponential growth rate and <em>g</em> as the linear growth rate once canopy closure is reached.</p>
+</section>
+<section id="implementing-the-model" class="level2">
+<h2 class="anchored" data-anchor-id="implementing-the-model">Implementing the Model</h2>
+<p>We begin the sensitivity analysis by implementing the model as a differential equation.</p>
+<div class="cell">
+<details>
+<summary>code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># carbon model</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># c = forest size in measured in units of carbon</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># ct = canopy threshold</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># r = exponential growth rate</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># g = linear growth rate at canopy closure</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># k = carrying capacity</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>carbon_model <span class="ot">&lt;-</span> <span class="cf">function</span>(Time, c, params) {</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ifelse</span>(c <span class="sc">&lt;</span> params<span class="sc">$</span>ct, </span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>          delta <span class="ot">&lt;-</span> params<span class="sc">$</span>r <span class="sc">*</span> c,</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>          delta <span class="ot">&lt;-</span> params<span class="sc">$</span>g <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> (c<span class="sc">/</span>params<span class="sc">$</span>k)))</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">list</span>(delta))</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="running-the-model-with-set-parameters" class="level2">
+<h2 class="anchored" data-anchor-id="running-the-model-with-set-parameters">Running the Model with Set Parameters</h2>
+<p>Once the model is implemented, we run the model for 300 years using given parameters, where there is no uncertainty. We begin with an initial forest size of 10 kg/C and the following parameters:</p>
+<ul class="incremental">
+<li>canopy closure threshold of 50 kgC</li>
+<li><em>K</em> = 250 kg C (carrying capacity)</li>
+<li><em>r</em> = 0.01 (exponential growth rate before canopy closure)</li>
+<li><em>g</em> = 2 kg/year (linear growth rate after canopy closure)</li>
+</ul>
+<div class="cell">
+<details>
+<summary>code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># initial forest size</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>c_init <span class="ot">&lt;-</span> <span class="dv">10</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># assignment of inital perameters</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>param <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">ct =</span> <span class="dv">50</span>,</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">k =</span> <span class="dv">250</span>,</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">r =</span> <span class="fl">0.01</span>,</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">g =</span> <span class="dv">2</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co"># 300 year simulation time</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>simtimes <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="at">from=</span><span class="dv">1</span>, <span class="at">to=</span><span class="dv">300</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>We utilize the ODE solver to run the model for 300 years</p>
+<div class="cell">
+<details>
+<summary>code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ODE solver implementation</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>result <span class="ot">&lt;-</span> <span class="fu">ode</span>(<span class="at">times =</span> simtimes, </span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">y =</span> <span class="fu">c</span>(<span class="at">c =</span> c_init), </span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">func =</span> carbon_model, </span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>              <span class="at">parms =</span> param)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co"># column renaming</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(result) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"time"</span>,<span class="st">"carbon"</span>)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co"># store results as a data frame</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>result <span class="ot">&lt;-</span>  <span class="fu">as.data.frame</span>(result)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>and then graph the trajectory results.</p>
+<div class="cell">
+<details>
+<summary>code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># graphing results </span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> result, <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> time, <span class="at">y =</span> carbon)) <span class="sc">+</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">color =</span> <span class="st">"darkblue"</span>, <span class="at">size =</span> <span class="dv">3</span>, <span class="at">alpha =</span> <span class="fl">0.6</span>) <span class="sc">+</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Carbon Levels Over Time"</span>,</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Time"</span>,</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Carbon"</span>,</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">caption =</span> <span class="st">"Source: Your data source"</span>) <span class="sc">+</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>, <span class="at">hjust =</span> <span class="fl">0.5</span>),</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>),</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>        <span class="at">plot.caption =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="index_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="running-a-sobol-global" class="level2">
+<h2 class="anchored" data-anchor-id="running-a-sobol-global">Running a Sobol Global</h2>
+<p>After we have run the model with given parameters, we run a sobol global sensitivity analysis, varying all parameters at the same time. This will help us to explore how the estimated <strong>maximum forest size</strong> varies within the parameters:</p>
+<ul class="incremental">
+<li>pre-canopy closure growth rate (<em>r</em>)</li>
+<li>post-canopy closure growth rate (<em>g</em>)</li>
+<li>canopy closure threshold and carrying capacity (<em>K</em>)</li>
+</ul>
+<p>For this exercise, we assume that parameters are all normally distributed with means as given in initial parameters and standard deviation of 10% of the mean value.</p>
+<div class="cell">
+<details>
+<summary>code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">#set base params</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>ct_base <span class="ot">=</span> <span class="dv">50</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>k_base <span class="ot">=</span> <span class="dv">250</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>r_base <span class="ot">=</span> <span class="fl">0.01</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>g_base <span class="ot">=</span> <span class="dv">2</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co">#set sd multiplier</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>sd <span class="ot">=</span> <span class="fl">0.1</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co">#first set of parameter samples</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>ct <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="at">mean=</span>ct_base, <span class="at">sd=</span>ct_base<span class="sc">*</span>sd, <span class="at">n=</span><span class="dv">300</span>)</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>k <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="at">mean=</span>k_base, <span class="at">sd=</span>k_base<span class="sc">*</span>sd, <span class="at">n=</span><span class="dv">300</span>)</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>r <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="at">mean=</span>r_base, <span class="at">sd=</span>r_base<span class="sc">*</span>sd, <span class="at">n=</span><span class="dv">300</span>)</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="at">mean=</span>g_base, <span class="at">sd=</span>g_base<span class="sc">*</span>sd, <span class="at">n=</span><span class="dv">300</span>)</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>X1 <span class="ot">=</span> <span class="fu">cbind.data.frame</span>(<span class="at">ct=</span>ct, <span class="at">k=</span>k, <span class="at">r=</span>r, <span class="at">g=</span>g)</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="co">#repeat the process</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>ct <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="at">mean=</span>ct_base, <span class="at">sd=</span>ct_base<span class="sc">*</span>sd, <span class="at">n=</span><span class="dv">300</span>)</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>k <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="at">mean=</span>k_base, <span class="at">sd=</span>k_base<span class="sc">*</span>sd, <span class="at">n=</span><span class="dv">300</span>)</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>r <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="at">mean=</span>r_base, <span class="at">sd=</span>r_base<span class="sc">*</span>sd, <span class="at">n=</span><span class="dv">300</span>)</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="at">mean=</span>g_base, <span class="at">sd=</span>g_base<span class="sc">*</span>sd, <span class="at">n=</span><span class="dv">300</span>)</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>X2 <span class="ot">=</span> <span class="fu">cbind.data.frame</span>(<span class="at">ct=</span>ct, <span class="at">k=</span>k, <span class="at">r=</span>r, <span class="at">g=</span>g)</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a><span class="co">#mapping to account for negative values</span></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>X1 <span class="ot">=</span> X1 <span class="sc">%&gt;%</span> <span class="fu">map_df</span>(pmax, <span class="fl">0.0</span>)</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>X2 <span class="ot">=</span> X2 <span class="sc">%&gt;%</span> <span class="fu">map_df</span>(pmax, <span class="fl">0.0</span>)</span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a><span class="co">#sobol parameters</span></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>sens_carbon <span class="ot">&lt;-</span> <span class="fu">sobolSalt</span>(<span class="at">model =</span> <span class="cn">NULL</span>, X1, X2, <span class="at">nboot =</span> <span class="dv">300</span>)</span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a><span class="co"># naming output columns </span></span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(sens_carbon<span class="sc">$</span>X) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"ct"</span>,<span class="st">"k"</span>, <span class="st">"r"</span>, <span class="st">"g"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell">
+<details>
+<summary>code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># function to return max carbon  </span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>compute_max <span class="ot">=</span> <span class="cf">function</span>(results) {</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  max_carbon <span class="ot">=</span> results<span class="sc">$</span>carbon[<span class="dv">300</span>]</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">list</span>(<span class="at">max_carbon =</span> max_carbon))</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co"># function for ODEsolve</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>carbon_wrapper <span class="ot">&lt;-</span> <span class="cf">function</span>(c_initial, ct, k, r, g, simtimes, func) {</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  parms <span class="ot">=</span> <span class="fu">list</span>(<span class="at">ct=</span>ct, <span class="at">k=</span>k, <span class="at">r=</span>r, <span class="at">g=</span>g)</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  results <span class="ot">=</span> <span class="fu">ode</span>(<span class="at">y=</span> c_initial, <span class="at">times=</span> simtimes, <span class="at">func=</span> func, <span class="at">parms=</span> parms)</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(results) <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"time"</span>,<span class="st">"carbon"</span>)</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  metrics <span class="ot">=</span> <span class="fu">compute_max</span>(<span class="fu">as.data.frame</span>(results))</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(metrics)</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell">
+<details>
+<summary>code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>allresults <span class="ot">=</span> <span class="fu">as.data.frame</span>(sens_carbon<span class="sc">$</span>X) <span class="sc">%&gt;%</span> </span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pmap</span>(carbon_wrapper, </span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>       <span class="at">c_initial=</span>c_init, </span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>       <span class="at">simtimes=</span>simtimes, </span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">func=</span>carbon_model)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co">#take the results out of the list </span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>allres <span class="ot">=</span> allresults <span class="sc">%&gt;%</span> <span class="fu">map_dfr</span>(<span class="st">`</span><span class="at">[</span><span class="st">`</span>,<span class="fu">c</span>(<span class="st">"max_carbon"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>We graph the results of the sensitivity analysis as a boxplot of maximum forest size and record sobol indices <strong>S</strong> and <strong>T</strong>.</p>
+<div class="cell">
+<details>
+<summary>code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># box plot of max carbon</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> allres, <span class="fu">aes</span>(<span class="at">x =</span> <span class="st">"Maximum Forest Size"</span>, <span class="at">y =</span> max_carbon)) <span class="sc">+</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="at">fill =</span> <span class="st">"darkblue"</span>, <span class="at">outlier.shape =</span> <span class="cn">NA</span>) <span class="sc">+</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Boxplot of Maximum Carbon Value"</span>,</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Max Carbon"</span>,</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">""</span>) <span class="sc">+</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>, <span class="at">hjust =</span> <span class="fl">0.5</span>),</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.title.y =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>),</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>        <span class="at">plot.caption =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="dv">1</span>)) <span class="sc">+</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="index_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+<details>
+<summary>code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># record the indices</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>sens_carbon_maxcarbon <span class="ot">=</span> sensitivity<span class="sc">::</span><span class="fu">tell</span>(sens_carbon,allres<span class="sc">$</span>max_carbon)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># First-order indices table</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>first_order_indices <span class="ot">&lt;-</span> sens_carbon_maxcarbon<span class="sc">$</span>S</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="fu">rownames</span>(first_order_indices) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"ct"</span>, <span class="st">"k"</span>, <span class="st">"r"</span>, <span class="st">"g"</span>)  <span class="co"># Rename rows with variable names</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>kable_first_order <span class="ot">&lt;-</span> <span class="fu">kable</span>(first_order_indices, <span class="at">caption =</span> <span class="st">"First-Order Indices"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="st">"striped"</span>, <span class="at">full_width =</span> <span class="cn">FALSE</span>) </span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Total sensitivity index table</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>total_sensitivity_index <span class="ot">&lt;-</span> sens_carbon_maxcarbon<span class="sc">$</span>T</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="fu">rownames</span>(total_sensitivity_index) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"ct"</span>, <span class="st">"k"</span>, <span class="st">"r"</span>, <span class="st">"g"</span>)  <span class="co"># Rename rows with variable names</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>kable_total_sensitivity <span class="ot">&lt;-</span> <span class="fu">kable</span>(total_sensitivity_index, <span class="at">caption =</span> <span class="st">"Total Sensitivity Index"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="st">"striped"</span>, <span class="at">full_width =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Print the tables</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>kable_first_order</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<table class="table table-striped table-sm small" data-quarto-postprocess="true">
+<caption>First-Order Indices</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th"></th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">original</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">bias</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">std. error</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">min. c.i.</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">max. c.i.</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">ct</td>
+<td style="text-align: right;">0.0289291</td>
+<td style="text-align: right;">0.0030741</td>
+<td style="text-align: right;">0.0579539</td>
+<td style="text-align: right;">-0.0883667</td>
+<td style="text-align: right;">0.1443944</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">k</td>
+<td style="text-align: right;">0.3119509</td>
+<td style="text-align: right;">0.0017883</td>
+<td style="text-align: right;">0.0592179</td>
+<td style="text-align: right;">0.1853595</td>
+<td style="text-align: right;">0.4378133</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">r</td>
+<td style="text-align: right;">0.3574912</td>
+<td style="text-align: right;">-0.0021605</td>
+<td style="text-align: right;">0.0568834</td>
+<td style="text-align: right;">0.2467880</td>
+<td style="text-align: right;">0.4698169</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">g</td>
+<td style="text-align: right;">0.1462864</td>
+<td style="text-align: right;">0.0041816</td>
+<td style="text-align: right;">0.0629863</td>
+<td style="text-align: right;">0.0177222</td>
+<td style="text-align: right;">0.2618441</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+<details>
+<summary>code</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>kable_total_sensitivity</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<table class="table table-striped table-sm small" data-quarto-postprocess="true">
+<caption>Total Sensitivity Index</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th"></th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">original</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">bias</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">std. error</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">min. c.i.</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">max. c.i.</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">ct</td>
+<td style="text-align: right;">0.0735177</td>
+<td style="text-align: right;">0.0003958</td>
+<td style="text-align: right;">0.0073669</td>
+<td style="text-align: right;">0.0581179</td>
+<td style="text-align: right;">0.0858989</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">k</td>
+<td style="text-align: right;">0.3454228</td>
+<td style="text-align: right;">-0.0000529</td>
+<td style="text-align: right;">0.0395123</td>
+<td style="text-align: right;">0.2640661</td>
+<td style="text-align: right;">0.4232375</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">r</td>
+<td style="text-align: right;">0.4382633</td>
+<td style="text-align: right;">0.0004716</td>
+<td style="text-align: right;">0.0527044</td>
+<td style="text-align: right;">0.3202956</td>
+<td style="text-align: right;">0.5390899</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">g</td>
+<td style="text-align: right;">0.1810172</td>
+<td style="text-align: right;">0.0012797</td>
+<td style="text-align: right;">0.0220721</td>
+<td style="text-align: right;">0.1332663</td>
+<td style="text-align: right;">0.2220225</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+<p>Considering the range of parameter variations, a shift exceeding 50% in the maximum carbon levels within the forest becomes apparent. Notably, both the first-order and total sensitivity analyses underscore the significance of the carrying capacity (k) and exponential growth rate (r) as pivotal factors in influencing the extent of variability in maximum carbon levels. Foreseeing the potential impact of climate change on forest dynamics, it is plausible to anticipate alterations in the carrying capacity. For instance, factors such as soil nutrient depletion could curtail the forest’s capacity to support tree growth. In light of this scenario, a corresponding decline in the overall carbon content within forests could be anticipated.</p>
+
+
+<!-- -->
+
+</section>
+<section id="description-1" class="level2">
+<h2 class="anchored" data-anchor-id="description-1">Description</h2>
+<p>In this post, I perform a Sobol sensitivity analysis with an ODE (ordinary differential equation). This analysis is derived from an assignment for EDS230: Modeling Environmental Systems, as part of the curriculum for UCSB’s Master’s of Environmental Data Science program.</p>
+<p>Sobol sensitivity analysis is a variance-based approach designed to efficiently sample a parameter space. Sobol quantifies sensitivity by breaking variance outputs into several indices, which are computed using parameter-output variance relationships. These indices include:</p>
+<ul class="incremental">
+<li>First Order Sensitivity (Main Effect): variance associated directly with parameter alone</li>
+<li>Total Effect: variance associated with parameter and interaction with other parameters</li>
+<li>Second Order Indices: quantification of how parameter pair-wise parameter interactions contribute to output variation</li>
+</ul>
+<p>In this example, we consider the following model of forest growth (where forest size is measures in units of carbon (C)):</p>
+<p><em>dC/dt = r ⋅ C</em> for forests where C is below a threshold canopy closure</p>
+<p><em>dC/dt = g ⋅ (1 - C/k)</em> for forests where carbon is at or above the threshold canopy closure and K is a carrying capacity in units of carbon</p>
+<p>The size of the forest <em>(C)</em>, canopy closure threshold and carrying capacity are all in units of carbon. We think of the canopy closure threshold as the size of the forest at which growth rates change from exponential to linear, and we observe <em>r</em>, as early exponential growth rate and <em>g</em> as the linear growth rate once canopy closure is reached.</p>
+</section>
+<section id="implementing-the-model-1" class="level2">
+<h2 class="anchored" data-anchor-id="implementing-the-model-1">Implementing the Model</h2>
+<p>We begin the sensitivity analysis by implementing the model as a differential equation.</p>
+<p><code>{r include=FALSE} # packages rm(list = ls()) if ("package:kableExtra" %in% search()) {   detach("package:kableExtra", unload=TRUE) } library(tidyverse) library(deSolve) library(sensitivity) library(knitr) library(kableExtra) library(sjPlot)</code></p>
+<pre class="{r}"><code># carbon model
+
+# c = forest size in measured in units of carbon
+# ct = canopy threshold
+# r = exponential growth rate
+# g = linear growth rate at canopy closure
+# k = carrying capacity
+
+carbon_model &lt;- function(Time, c, params) {
+  
+  ifelse(c &lt; params$ct, 
+          delta &lt;- params$r * c,
+          delta &lt;- params$g * (1 - (c/params$k)))
+  
+  return(list(delta))
+}</code></pre>
+</section>
+<section id="running-the-model-with-set-parameters-1" class="level2">
+<h2 class="anchored" data-anchor-id="running-the-model-with-set-parameters-1">Running the Model with Set Parameters</h2>
+<p>Once the model is implemented, we run the model for 300 years using given parameters, where there is no uncertainty. We begin with an initial forest size of 10 kg/C and the following parameters:</p>
+<ul class="incremental">
+<li>canopy closure threshold of 50 kgC</li>
+<li><em>K</em> = 250 kg C (carrying capacity)</li>
+<li><em>r</em> = 0.01 (exponential growth rate before canopy closure)</li>
+<li><em>g</em> = 2 kg/year (linear growth rate after canopy closure)</li>
+</ul>
+<pre class="{r}"><code># initial forest size
+c_init &lt;- 10
+
+# assignment of inital perameters
+param &lt;- list(
+  ct = 50,
+  k = 250,
+  r = 0.01,
+  g = 2
+)
+
+# 300 year simulation time
+simtimes &lt;- seq(from=1, to=300)</code></pre>
+<p>We utilize the ODE solver to run the model for 300 years</p>
+<pre class="{r}"><code># ODE solver implementation
+result &lt;- ode(times = simtimes, 
+              y = c(c = c_init), 
+              func = carbon_model, 
+              parms = param)
+
+# column renaming
+colnames(result) &lt;- c("time","carbon")
+
+# store results as a data frame
+result &lt;-  as.data.frame(result)</code></pre>
+<p>and then graph the trajectory results.</p>
+<pre class="{r}"><code># graphing results 
+ggplot(data = result, mapping = aes(x = time, y = carbon)) +
+  geom_point(color = "darkblue", size = 3, alpha = 0.6) +
+  labs(title = "Carbon Levels Over Time",
+       x = "Time",
+       y = "Carbon",
+       caption = "Source: Your data source") +
+  theme_minimal() +
+  theme(plot.title = element_text(face = "bold", hjust = 0.5),
+        axis.title = element_text(face = "bold"),
+        plot.caption = element_text(hjust = 1))</code></pre>
+</section>
+<section id="running-a-sobol-global-1" class="level2">
+<h2 class="anchored" data-anchor-id="running-a-sobol-global-1">Running a Sobol Global</h2>
+<p>After we have run the model with given parameters, we run a sobol global sensitivity analysis, varying all parameters at the same time. This will help us to explore how the estimated <strong>maximum forest size</strong> varies within the parameters:</p>
+<ul class="incremental">
+<li>pre-canopy closure growth rate (<em>r</em>)</li>
+<li>post-canopy closure growth rate (<em>g</em>)</li>
+<li>canopy closure threshold and carrying capacity (<em>K</em>)</li>
+</ul>
+<p>For this exercise, we assume that parameters are all normally distributed with means as given in initial parameters and standard deviation of 10% of the mean value.</p>
+<pre class="{r}"><code>#set base params
+ct_base = 50
+k_base = 250
+r_base = 0.01
+g_base = 2
+
+#set sd multiplier
+sd = 0.1
+
+#first set of parameter samples
+ct &lt;- rnorm(mean=ct_base, sd=ct_base*sd, n=300)
+k &lt;- rnorm(mean=k_base, sd=k_base*sd, n=300)
+r &lt;- rnorm(mean=r_base, sd=r_base*sd, n=300)
+g &lt;- rnorm(mean=g_base, sd=g_base*sd, n=300)
+X1 = cbind.data.frame(ct=ct, k=k, r=r, g=g)
+
+#repeat the process
+ct &lt;- rnorm(mean=ct_base, sd=ct_base*sd, n=300)
+k &lt;- rnorm(mean=k_base, sd=k_base*sd, n=300)
+r &lt;- rnorm(mean=r_base, sd=r_base*sd, n=300)
+g &lt;- rnorm(mean=g_base, sd=g_base*sd, n=300)
+X2 = cbind.data.frame(ct=ct, k=k, r=r, g=g)
+
+#mapping to account for negative values
+X1 = X1 %&gt;% map_df(pmax, 0.0)
+X2 = X2 %&gt;% map_df(pmax, 0.0)
+
+#sobol parameters
+sens_carbon &lt;- sobolSalt(model = NULL, X1, X2, nboot = 300)
+
+# naming output columns 
+colnames(sens_carbon$X) &lt;- c("ct","k", "r", "g")</code></pre>
+<pre class="{r}"><code># function to return max carbon  
+compute_max = function(results) {
+  
+  max_carbon = results$carbon[300]
+  
+  return(list(max_carbon = max_carbon))
+}
+
+# function for ODEsolve
+carbon_wrapper &lt;- function(c_initial, ct, k, r, g, simtimes, func) {
+  parms = list(ct=ct, k=k, r=r, g=g)
+  results = ode(y= c_initial, times= simtimes, func= func, parms= parms)
+  colnames(results) = c("time","carbon")
+  metrics = compute_max(as.data.frame(results))
+  return(metrics)
+}</code></pre>
+<pre class="{r}"><code>allresults = as.data.frame(sens_carbon$X) %&gt;% 
+  pmap(carbon_wrapper, 
+       c_initial=c_init, 
+       simtimes=simtimes, 
+       func=carbon_model)
+
+#take the results out of the list 
+allres = allresults %&gt;% map_dfr(`[`,c("max_carbon"))</code></pre>
+<p>We graph the results of the sensitivity analysis as a boxplot of maximum forest size and record sobol indices <strong>S</strong> and <strong>T</strong>.</p>
+<pre class="{r}"><code># box plot of max carbon
+ggplot(data = allres, aes(x = "Maximum Forest Size", y = max_carbon)) +
+  geom_boxplot(fill = "darkblue", outlier.shape = NA) +
+  labs(title = "Boxplot of Maximum Carbon Value",
+       y = "Max Carbon",
+       x = "") +
+  theme_minimal() +
+  theme(plot.title = element_text(face = "bold", hjust = 0.5),
+        axis.title.y = element_text(face = "bold"),
+        plot.caption = element_text(hjust = 1)) +
+  coord_flip()</code></pre>
+<pre class="{r}"><code># record the indices
+sens_carbon_maxcarbon = sensitivity::tell(sens_carbon,allres$max_carbon)
+
+# First-order indices table
+first_order_indices &lt;- sens_carbon_maxcarbon$S
+rownames(first_order_indices) &lt;- c("ct", "k", "r", "g")  # Rename rows with variable names
+kable_first_order &lt;- kable(first_order_indices, caption = "First-Order Indices") %&gt;%
+  kable_styling("striped", full_width = FALSE) 
+
+# Total sensitivity index table
+total_sensitivity_index &lt;- sens_carbon_maxcarbon$T
+rownames(total_sensitivity_index) &lt;- c("ct", "k", "r", "g")  # Rename rows with variable names
+kable_total_sensitivity &lt;- kable(total_sensitivity_index, caption = "Total Sensitivity Index") %&gt;%
+  kable_styling("striped", full_width = FALSE)
+
+# Print the tables
+kable_first_order
+kable_total_sensitivity</code></pre>
+<p>Considering the range of parameter variations, a shift exceeding 50% in the maximum carbon levels within the forest becomes apparent. Notably, both the first-order and total sensitivity analyses underscore the significance of the carrying capacity (k) and exponential growth rate (r) as pivotal factors in influencing the extent of variability in maximum carbon levels. Foreseeing the potential impact of climate change on forest dynamics, it is plausible to anticipate alterations in the carrying capacity. For instance, factors such as soil nutrient depletion could curtail the forest’s capacity to support tree growth. In light of this scenario, a corresponding decline in the overall carbon content within forests could be anticipated.</p>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  const viewSource = window.document.getElementById('quarto-view-source') ||
+                     window.document.getElementById('quarto-code-tools-source');
+  if (viewSource) {
+    const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+    viewSource.addEventListener("click", function(e) {
+      if (sourceUrl) {
+        // rstudio viewer pane
+        if (/\bcapabilities=\b/.test(window.location)) {
+          window.open(sourceUrl);
+        } else {
+          window.location.href = sourceUrl;
+        }
+      } else {
+        const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+        modal.show();
+      }
+      return false;
+    });
+  }
+  function toggleCodeHandler(show) {
+    return function(e) {
+      const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+      for (let i=0; i<detailsSrc.length; i++) {
+        const details = detailsSrc[i].parentElement;
+        if (show) {
+          details.open = true;
+        } else {
+          details.removeAttribute("open");
+        }
+      }
+      const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+      const fromCls = show ? "hidden" : "unhidden";
+      const toCls = show ? "unhidden" : "hidden";
+      for (let i=0; i<cellCodeDivs.length; i++) {
+        const codeDiv = cellCodeDivs[i];
+        if (codeDiv.classList.contains(fromCls)) {
+          codeDiv.classList.remove(fromCls);
+          codeDiv.classList.add(toCls);
+        } 
+      }
+      return false;
+    }
+  }
+  const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+  if (hideAllCode) {
+    hideAllCode.addEventListener("click", toggleCodeHandler(false));
+  }
+  const showAllCode = window.document.getElementById("quarto-show-all-code");
+  if (showAllCode) {
+    showAllCode.addEventListener("click", toggleCodeHandler(true));
+  }
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="sourceCode" id="cb11" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Using Sobol Sensitivity Analysis with an ODE"</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="an">description:</span><span class="co"> "A sensitivity analysis example modeling forest growth."</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="co">  - name: Gabrielle Smith</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="co">    url: https://gabriellensmith.github.io</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="co">    affiliation: MEDS</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="co">    affiliation-url: https://ucsb-meds.github.io/</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> 2023-05-22</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="an">catergories:</span><span class="co"> [MEDS, Modeling, R]</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="an">image:</span><span class="co"> forest.jpeg</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="an">editor:</span><span class="co"> visual</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a><span class="an">toc:</span><span class="co"> true</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a><span class="an">draft:</span><span class="co"> false</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span><span class="co"> </span></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a><span class="co">    code-fold: true</span></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a><span class="co">    code-tools: true</span></span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a><span class="co">    code-summary: 'code'</span></span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a><span class="fu">## Description</span></span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>In this post, I perform a Sobol sensitivity analysis with an ODE (ordinary differential equation). This analysis is derived from an assignment for EDS230: Modeling Environmental Systems, as part of the curriculum for UCSB's Master's of Environmental Data Science program.</span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>Sobol sensitivity analysis is a variance-based approach designed to efficiently sample a parameter space. Sobol quantifies sensitivity by breaking variance outputs into several indices, which are computed using parameter-output variance relationships. These indices include:</span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>First Order Sensitivity (Main Effect): variance associated directly with parameter alone</span>
+<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Total Effect: variance associated with parameter and interaction with other parameters</span>
+<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Second Order Indices: quantification of how parameter pair-wise parameter interactions contribute to output variation</span>
+<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-32"><a href="#cb11-32" aria-hidden="true" tabindex="-1"></a>In this example, we consider the following model of forest growth (where forest size is measures in units of carbon (C)):</span>
+<span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-34"><a href="#cb11-34" aria-hidden="true" tabindex="-1"></a>*dC/dt = r ⋅ C* for forests where C is below a threshold canopy closure</span>
+<span id="cb11-35"><a href="#cb11-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-36"><a href="#cb11-36" aria-hidden="true" tabindex="-1"></a>*dC/dt = g ⋅ (1 - C/k)* for forests where carbon is at or above the threshold canopy closure and K is a carrying capacity in units of carbon</span>
+<span id="cb11-37"><a href="#cb11-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-38"><a href="#cb11-38" aria-hidden="true" tabindex="-1"></a>The size of the forest *(C)*, canopy closure threshold and carrying capacity are all in units of carbon. We think of the canopy closure threshold as the size of the forest at which growth rates change from exponential to linear, and we observe *r*, as early exponential growth rate and *g* as the linear growth rate once canopy closure is reached. </span>
+<span id="cb11-39"><a href="#cb11-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-40"><a href="#cb11-40" aria-hidden="true" tabindex="-1"></a><span class="fu">## Implementing the Model</span></span>
+<span id="cb11-41"><a href="#cb11-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-42"><a href="#cb11-42" aria-hidden="true" tabindex="-1"></a>We begin the sensitivity analysis by implementing the model as a differential equation.</span>
+<span id="cb11-43"><a href="#cb11-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-44"><a href="#cb11-44" aria-hidden="true" tabindex="-1"></a><span class="in">```{r include=FALSE}</span></span>
+<span id="cb11-45"><a href="#cb11-45" aria-hidden="true" tabindex="-1"></a><span class="co"># packages</span></span>
+<span id="cb11-46"><a href="#cb11-46" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>())</span>
+<span id="cb11-47"><a href="#cb11-47" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="st">"package:kableExtra"</span> <span class="sc">%in%</span> <span class="fu">search</span>()) {</span>
+<span id="cb11-48"><a href="#cb11-48" aria-hidden="true" tabindex="-1"></a>  <span class="fu">detach</span>(<span class="st">"package:kableExtra"</span>, <span class="at">unload=</span><span class="cn">TRUE</span>)</span>
+<span id="cb11-49"><a href="#cb11-49" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb11-50"><a href="#cb11-50" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb11-51"><a href="#cb11-51" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(deSolve)</span>
+<span id="cb11-52"><a href="#cb11-52" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sensitivity)</span>
+<span id="cb11-53"><a href="#cb11-53" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(knitr)</span>
+<span id="cb11-54"><a href="#cb11-54" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(kableExtra)</span>
+<span id="cb11-55"><a href="#cb11-55" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sjPlot)</span>
+<span id="cb11-56"><a href="#cb11-56" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-57"><a href="#cb11-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-60"><a href="#cb11-60" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb11-61"><a href="#cb11-61" aria-hidden="true" tabindex="-1"></a><span class="co"># carbon model</span></span>
+<span id="cb11-62"><a href="#cb11-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-63"><a href="#cb11-63" aria-hidden="true" tabindex="-1"></a><span class="co"># c = forest size in measured in units of carbon</span></span>
+<span id="cb11-64"><a href="#cb11-64" aria-hidden="true" tabindex="-1"></a><span class="co"># ct = canopy threshold</span></span>
+<span id="cb11-65"><a href="#cb11-65" aria-hidden="true" tabindex="-1"></a><span class="co"># r = exponential growth rate</span></span>
+<span id="cb11-66"><a href="#cb11-66" aria-hidden="true" tabindex="-1"></a><span class="co"># g = linear growth rate at canopy closure</span></span>
+<span id="cb11-67"><a href="#cb11-67" aria-hidden="true" tabindex="-1"></a><span class="co"># k = carrying capacity</span></span>
+<span id="cb11-68"><a href="#cb11-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-69"><a href="#cb11-69" aria-hidden="true" tabindex="-1"></a>carbon_model <span class="ot">&lt;-</span> <span class="cf">function</span>(Time, c, params) {</span>
+<span id="cb11-70"><a href="#cb11-70" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-71"><a href="#cb11-71" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ifelse</span>(c <span class="sc">&lt;</span> params<span class="sc">$</span>ct, </span>
+<span id="cb11-72"><a href="#cb11-72" aria-hidden="true" tabindex="-1"></a>          delta <span class="ot">&lt;-</span> params<span class="sc">$</span>r <span class="sc">*</span> c,</span>
+<span id="cb11-73"><a href="#cb11-73" aria-hidden="true" tabindex="-1"></a>          delta <span class="ot">&lt;-</span> params<span class="sc">$</span>g <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> (c<span class="sc">/</span>params<span class="sc">$</span>k)))</span>
+<span id="cb11-74"><a href="#cb11-74" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-75"><a href="#cb11-75" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">list</span>(delta))</span>
+<span id="cb11-76"><a href="#cb11-76" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb11-77"><a href="#cb11-77" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-78"><a href="#cb11-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-79"><a href="#cb11-79" aria-hidden="true" tabindex="-1"></a><span class="fu">## Running the Model with Set Parameters</span></span>
+<span id="cb11-80"><a href="#cb11-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-81"><a href="#cb11-81" aria-hidden="true" tabindex="-1"></a>Once the model is implemented, we run the model for 300 years using given parameters, where there is no uncertainty. We begin with an initial forest size of 10 kg/C and the following parameters:</span>
+<span id="cb11-82"><a href="#cb11-82" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-83"><a href="#cb11-83" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>canopy closure threshold of 50 kgC</span>
+<span id="cb11-84"><a href="#cb11-84" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>*K* = 250 kg C (carrying capacity)</span>
+<span id="cb11-85"><a href="#cb11-85" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>*r* = 0.01 (exponential growth rate before canopy closure)</span>
+<span id="cb11-86"><a href="#cb11-86" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>*g* = 2 kg/year (linear growth rate after canopy closure)</span>
+<span id="cb11-87"><a href="#cb11-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-90"><a href="#cb11-90" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb11-91"><a href="#cb11-91" aria-hidden="true" tabindex="-1"></a><span class="co"># initial forest size</span></span>
+<span id="cb11-92"><a href="#cb11-92" aria-hidden="true" tabindex="-1"></a>c_init <span class="ot">&lt;-</span> <span class="dv">10</span></span>
+<span id="cb11-93"><a href="#cb11-93" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-94"><a href="#cb11-94" aria-hidden="true" tabindex="-1"></a><span class="co"># assignment of inital perameters</span></span>
+<span id="cb11-95"><a href="#cb11-95" aria-hidden="true" tabindex="-1"></a>param <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb11-96"><a href="#cb11-96" aria-hidden="true" tabindex="-1"></a>  <span class="at">ct =</span> <span class="dv">50</span>,</span>
+<span id="cb11-97"><a href="#cb11-97" aria-hidden="true" tabindex="-1"></a>  <span class="at">k =</span> <span class="dv">250</span>,</span>
+<span id="cb11-98"><a href="#cb11-98" aria-hidden="true" tabindex="-1"></a>  <span class="at">r =</span> <span class="fl">0.01</span>,</span>
+<span id="cb11-99"><a href="#cb11-99" aria-hidden="true" tabindex="-1"></a>  <span class="at">g =</span> <span class="dv">2</span></span>
+<span id="cb11-100"><a href="#cb11-100" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb11-101"><a href="#cb11-101" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-102"><a href="#cb11-102" aria-hidden="true" tabindex="-1"></a><span class="co"># 300 year simulation time</span></span>
+<span id="cb11-103"><a href="#cb11-103" aria-hidden="true" tabindex="-1"></a>simtimes <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="at">from=</span><span class="dv">1</span>, <span class="at">to=</span><span class="dv">300</span>)</span>
+<span id="cb11-104"><a href="#cb11-104" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-105"><a href="#cb11-105" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-106"><a href="#cb11-106" aria-hidden="true" tabindex="-1"></a>We utilize the ODE solver to run the model for 300 years</span>
+<span id="cb11-107"><a href="#cb11-107" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-110"><a href="#cb11-110" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb11-111"><a href="#cb11-111" aria-hidden="true" tabindex="-1"></a><span class="co"># ODE solver implementation</span></span>
+<span id="cb11-112"><a href="#cb11-112" aria-hidden="true" tabindex="-1"></a>result <span class="ot">&lt;-</span> <span class="fu">ode</span>(<span class="at">times =</span> simtimes, </span>
+<span id="cb11-113"><a href="#cb11-113" aria-hidden="true" tabindex="-1"></a>              <span class="at">y =</span> <span class="fu">c</span>(<span class="at">c =</span> c_init), </span>
+<span id="cb11-114"><a href="#cb11-114" aria-hidden="true" tabindex="-1"></a>              <span class="at">func =</span> carbon_model, </span>
+<span id="cb11-115"><a href="#cb11-115" aria-hidden="true" tabindex="-1"></a>              <span class="at">parms =</span> param)</span>
+<span id="cb11-116"><a href="#cb11-116" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-117"><a href="#cb11-117" aria-hidden="true" tabindex="-1"></a><span class="co"># column renaming</span></span>
+<span id="cb11-118"><a href="#cb11-118" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(result) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"time"</span>,<span class="st">"carbon"</span>)</span>
+<span id="cb11-119"><a href="#cb11-119" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-120"><a href="#cb11-120" aria-hidden="true" tabindex="-1"></a><span class="co"># store results as a data frame</span></span>
+<span id="cb11-121"><a href="#cb11-121" aria-hidden="true" tabindex="-1"></a>result <span class="ot">&lt;-</span>  <span class="fu">as.data.frame</span>(result)</span>
+<span id="cb11-122"><a href="#cb11-122" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-123"><a href="#cb11-123" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-124"><a href="#cb11-124" aria-hidden="true" tabindex="-1"></a>and then graph the trajectory results.</span>
+<span id="cb11-125"><a href="#cb11-125" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-128"><a href="#cb11-128" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb11-129"><a href="#cb11-129" aria-hidden="true" tabindex="-1"></a><span class="co"># graphing results </span></span>
+<span id="cb11-130"><a href="#cb11-130" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> result, <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> time, <span class="at">y =</span> carbon)) <span class="sc">+</span></span>
+<span id="cb11-131"><a href="#cb11-131" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">color =</span> <span class="st">"darkblue"</span>, <span class="at">size =</span> <span class="dv">3</span>, <span class="at">alpha =</span> <span class="fl">0.6</span>) <span class="sc">+</span></span>
+<span id="cb11-132"><a href="#cb11-132" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Carbon Levels Over Time"</span>,</span>
+<span id="cb11-133"><a href="#cb11-133" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Time"</span>,</span>
+<span id="cb11-134"><a href="#cb11-134" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Carbon"</span>,</span>
+<span id="cb11-135"><a href="#cb11-135" aria-hidden="true" tabindex="-1"></a>       <span class="at">caption =</span> <span class="st">"Source: Your data source"</span>) <span class="sc">+</span></span>
+<span id="cb11-136"><a href="#cb11-136" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb11-137"><a href="#cb11-137" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>, <span class="at">hjust =</span> <span class="fl">0.5</span>),</span>
+<span id="cb11-138"><a href="#cb11-138" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>),</span>
+<span id="cb11-139"><a href="#cb11-139" aria-hidden="true" tabindex="-1"></a>        <span class="at">plot.caption =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="dv">1</span>))</span>
+<span id="cb11-140"><a href="#cb11-140" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-141"><a href="#cb11-141" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-142"><a href="#cb11-142" aria-hidden="true" tabindex="-1"></a><span class="fu">## Running a Sobol Global </span></span>
+<span id="cb11-143"><a href="#cb11-143" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-144"><a href="#cb11-144" aria-hidden="true" tabindex="-1"></a>After we have run the model with given parameters, we run a sobol global sensitivity analysis, varying all parameters at the same time. This will help us to explore how the estimated **maximum forest size** varies within the parameters:</span>
+<span id="cb11-145"><a href="#cb11-145" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-146"><a href="#cb11-146" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>pre-canopy closure growth rate (*r*)</span>
+<span id="cb11-147"><a href="#cb11-147" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>post-canopy closure growth rate (*g*)</span>
+<span id="cb11-148"><a href="#cb11-148" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>canopy closure threshold and carrying capacity (*K*)</span>
+<span id="cb11-149"><a href="#cb11-149" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-150"><a href="#cb11-150" aria-hidden="true" tabindex="-1"></a>For this exercise, we assume that parameters are all normally distributed with means as given in initial parameters and standard deviation of 10% of the mean value.</span>
+<span id="cb11-151"><a href="#cb11-151" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-154"><a href="#cb11-154" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb11-155"><a href="#cb11-155" aria-hidden="true" tabindex="-1"></a><span class="co">#set base params</span></span>
+<span id="cb11-156"><a href="#cb11-156" aria-hidden="true" tabindex="-1"></a>ct_base <span class="ot">=</span> <span class="dv">50</span></span>
+<span id="cb11-157"><a href="#cb11-157" aria-hidden="true" tabindex="-1"></a>k_base <span class="ot">=</span> <span class="dv">250</span></span>
+<span id="cb11-158"><a href="#cb11-158" aria-hidden="true" tabindex="-1"></a>r_base <span class="ot">=</span> <span class="fl">0.01</span></span>
+<span id="cb11-159"><a href="#cb11-159" aria-hidden="true" tabindex="-1"></a>g_base <span class="ot">=</span> <span class="dv">2</span></span>
+<span id="cb11-160"><a href="#cb11-160" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-161"><a href="#cb11-161" aria-hidden="true" tabindex="-1"></a><span class="co">#set sd multiplier</span></span>
+<span id="cb11-162"><a href="#cb11-162" aria-hidden="true" tabindex="-1"></a>sd <span class="ot">=</span> <span class="fl">0.1</span></span>
+<span id="cb11-163"><a href="#cb11-163" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-164"><a href="#cb11-164" aria-hidden="true" tabindex="-1"></a><span class="co">#first set of parameter samples</span></span>
+<span id="cb11-165"><a href="#cb11-165" aria-hidden="true" tabindex="-1"></a>ct <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="at">mean=</span>ct_base, <span class="at">sd=</span>ct_base<span class="sc">*</span>sd, <span class="at">n=</span><span class="dv">300</span>)</span>
+<span id="cb11-166"><a href="#cb11-166" aria-hidden="true" tabindex="-1"></a>k <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="at">mean=</span>k_base, <span class="at">sd=</span>k_base<span class="sc">*</span>sd, <span class="at">n=</span><span class="dv">300</span>)</span>
+<span id="cb11-167"><a href="#cb11-167" aria-hidden="true" tabindex="-1"></a>r <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="at">mean=</span>r_base, <span class="at">sd=</span>r_base<span class="sc">*</span>sd, <span class="at">n=</span><span class="dv">300</span>)</span>
+<span id="cb11-168"><a href="#cb11-168" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="at">mean=</span>g_base, <span class="at">sd=</span>g_base<span class="sc">*</span>sd, <span class="at">n=</span><span class="dv">300</span>)</span>
+<span id="cb11-169"><a href="#cb11-169" aria-hidden="true" tabindex="-1"></a>X1 <span class="ot">=</span> <span class="fu">cbind.data.frame</span>(<span class="at">ct=</span>ct, <span class="at">k=</span>k, <span class="at">r=</span>r, <span class="at">g=</span>g)</span>
+<span id="cb11-170"><a href="#cb11-170" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-171"><a href="#cb11-171" aria-hidden="true" tabindex="-1"></a><span class="co">#repeat the process</span></span>
+<span id="cb11-172"><a href="#cb11-172" aria-hidden="true" tabindex="-1"></a>ct <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="at">mean=</span>ct_base, <span class="at">sd=</span>ct_base<span class="sc">*</span>sd, <span class="at">n=</span><span class="dv">300</span>)</span>
+<span id="cb11-173"><a href="#cb11-173" aria-hidden="true" tabindex="-1"></a>k <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="at">mean=</span>k_base, <span class="at">sd=</span>k_base<span class="sc">*</span>sd, <span class="at">n=</span><span class="dv">300</span>)</span>
+<span id="cb11-174"><a href="#cb11-174" aria-hidden="true" tabindex="-1"></a>r <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="at">mean=</span>r_base, <span class="at">sd=</span>r_base<span class="sc">*</span>sd, <span class="at">n=</span><span class="dv">300</span>)</span>
+<span id="cb11-175"><a href="#cb11-175" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="at">mean=</span>g_base, <span class="at">sd=</span>g_base<span class="sc">*</span>sd, <span class="at">n=</span><span class="dv">300</span>)</span>
+<span id="cb11-176"><a href="#cb11-176" aria-hidden="true" tabindex="-1"></a>X2 <span class="ot">=</span> <span class="fu">cbind.data.frame</span>(<span class="at">ct=</span>ct, <span class="at">k=</span>k, <span class="at">r=</span>r, <span class="at">g=</span>g)</span>
+<span id="cb11-177"><a href="#cb11-177" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-178"><a href="#cb11-178" aria-hidden="true" tabindex="-1"></a><span class="co">#mapping to account for negative values</span></span>
+<span id="cb11-179"><a href="#cb11-179" aria-hidden="true" tabindex="-1"></a>X1 <span class="ot">=</span> X1 <span class="sc">%&gt;%</span> <span class="fu">map_df</span>(pmax, <span class="fl">0.0</span>)</span>
+<span id="cb11-180"><a href="#cb11-180" aria-hidden="true" tabindex="-1"></a>X2 <span class="ot">=</span> X2 <span class="sc">%&gt;%</span> <span class="fu">map_df</span>(pmax, <span class="fl">0.0</span>)</span>
+<span id="cb11-181"><a href="#cb11-181" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-182"><a href="#cb11-182" aria-hidden="true" tabindex="-1"></a><span class="co">#sobol parameters</span></span>
+<span id="cb11-183"><a href="#cb11-183" aria-hidden="true" tabindex="-1"></a>sens_carbon <span class="ot">&lt;-</span> <span class="fu">sobolSalt</span>(<span class="at">model =</span> <span class="cn">NULL</span>, X1, X2, <span class="at">nboot =</span> <span class="dv">300</span>)</span>
+<span id="cb11-184"><a href="#cb11-184" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-185"><a href="#cb11-185" aria-hidden="true" tabindex="-1"></a><span class="co"># naming output columns </span></span>
+<span id="cb11-186"><a href="#cb11-186" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(sens_carbon<span class="sc">$</span>X) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"ct"</span>,<span class="st">"k"</span>, <span class="st">"r"</span>, <span class="st">"g"</span>)</span>
+<span id="cb11-187"><a href="#cb11-187" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-188"><a href="#cb11-188" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-191"><a href="#cb11-191" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb11-192"><a href="#cb11-192" aria-hidden="true" tabindex="-1"></a><span class="co"># function to return max carbon  </span></span>
+<span id="cb11-193"><a href="#cb11-193" aria-hidden="true" tabindex="-1"></a>compute_max <span class="ot">=</span> <span class="cf">function</span>(results) {</span>
+<span id="cb11-194"><a href="#cb11-194" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-195"><a href="#cb11-195" aria-hidden="true" tabindex="-1"></a>  max_carbon <span class="ot">=</span> results<span class="sc">$</span>carbon[<span class="dv">300</span>]</span>
+<span id="cb11-196"><a href="#cb11-196" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-197"><a href="#cb11-197" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">list</span>(<span class="at">max_carbon =</span> max_carbon))</span>
+<span id="cb11-198"><a href="#cb11-198" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb11-199"><a href="#cb11-199" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-200"><a href="#cb11-200" aria-hidden="true" tabindex="-1"></a><span class="co"># function for ODEsolve</span></span>
+<span id="cb11-201"><a href="#cb11-201" aria-hidden="true" tabindex="-1"></a>carbon_wrapper <span class="ot">&lt;-</span> <span class="cf">function</span>(c_initial, ct, k, r, g, simtimes, func) {</span>
+<span id="cb11-202"><a href="#cb11-202" aria-hidden="true" tabindex="-1"></a>  parms <span class="ot">=</span> <span class="fu">list</span>(<span class="at">ct=</span>ct, <span class="at">k=</span>k, <span class="at">r=</span>r, <span class="at">g=</span>g)</span>
+<span id="cb11-203"><a href="#cb11-203" aria-hidden="true" tabindex="-1"></a>  results <span class="ot">=</span> <span class="fu">ode</span>(<span class="at">y=</span> c_initial, <span class="at">times=</span> simtimes, <span class="at">func=</span> func, <span class="at">parms=</span> parms)</span>
+<span id="cb11-204"><a href="#cb11-204" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(results) <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"time"</span>,<span class="st">"carbon"</span>)</span>
+<span id="cb11-205"><a href="#cb11-205" aria-hidden="true" tabindex="-1"></a>  metrics <span class="ot">=</span> <span class="fu">compute_max</span>(<span class="fu">as.data.frame</span>(results))</span>
+<span id="cb11-206"><a href="#cb11-206" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(metrics)</span>
+<span id="cb11-207"><a href="#cb11-207" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb11-208"><a href="#cb11-208" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-209"><a href="#cb11-209" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-212"><a href="#cb11-212" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb11-213"><a href="#cb11-213" aria-hidden="true" tabindex="-1"></a>allresults <span class="ot">=</span> <span class="fu">as.data.frame</span>(sens_carbon<span class="sc">$</span>X) <span class="sc">%&gt;%</span> </span>
+<span id="cb11-214"><a href="#cb11-214" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pmap</span>(carbon_wrapper, </span>
+<span id="cb11-215"><a href="#cb11-215" aria-hidden="true" tabindex="-1"></a>       <span class="at">c_initial=</span>c_init, </span>
+<span id="cb11-216"><a href="#cb11-216" aria-hidden="true" tabindex="-1"></a>       <span class="at">simtimes=</span>simtimes, </span>
+<span id="cb11-217"><a href="#cb11-217" aria-hidden="true" tabindex="-1"></a>       <span class="at">func=</span>carbon_model)</span>
+<span id="cb11-218"><a href="#cb11-218" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-219"><a href="#cb11-219" aria-hidden="true" tabindex="-1"></a><span class="co">#take the results out of the list </span></span>
+<span id="cb11-220"><a href="#cb11-220" aria-hidden="true" tabindex="-1"></a>allres <span class="ot">=</span> allresults <span class="sc">%&gt;%</span> <span class="fu">map_dfr</span>(<span class="st">`</span><span class="at">[</span><span class="st">`</span>,<span class="fu">c</span>(<span class="st">"max_carbon"</span>))</span>
+<span id="cb11-221"><a href="#cb11-221" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-222"><a href="#cb11-222" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-223"><a href="#cb11-223" aria-hidden="true" tabindex="-1"></a>We graph the results of the sensitivity analysis as a boxplot of maximum forest size and record sobol indices **S** and **T**.</span>
+<span id="cb11-224"><a href="#cb11-224" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-227"><a href="#cb11-227" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb11-228"><a href="#cb11-228" aria-hidden="true" tabindex="-1"></a><span class="co"># box plot of max carbon</span></span>
+<span id="cb11-229"><a href="#cb11-229" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> allres, <span class="fu">aes</span>(<span class="at">x =</span> <span class="st">"Maximum Forest Size"</span>, <span class="at">y =</span> max_carbon)) <span class="sc">+</span></span>
+<span id="cb11-230"><a href="#cb11-230" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="at">fill =</span> <span class="st">"darkblue"</span>, <span class="at">outlier.shape =</span> <span class="cn">NA</span>) <span class="sc">+</span></span>
+<span id="cb11-231"><a href="#cb11-231" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Boxplot of Maximum Carbon Value"</span>,</span>
+<span id="cb11-232"><a href="#cb11-232" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Max Carbon"</span>,</span>
+<span id="cb11-233"><a href="#cb11-233" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">""</span>) <span class="sc">+</span></span>
+<span id="cb11-234"><a href="#cb11-234" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb11-235"><a href="#cb11-235" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>, <span class="at">hjust =</span> <span class="fl">0.5</span>),</span>
+<span id="cb11-236"><a href="#cb11-236" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.title.y =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>),</span>
+<span id="cb11-237"><a href="#cb11-237" aria-hidden="true" tabindex="-1"></a>        <span class="at">plot.caption =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="dv">1</span>)) <span class="sc">+</span></span>
+<span id="cb11-238"><a href="#cb11-238" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>()</span>
+<span id="cb11-239"><a href="#cb11-239" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-240"><a href="#cb11-240" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-243"><a href="#cb11-243" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb11-244"><a href="#cb11-244" aria-hidden="true" tabindex="-1"></a><span class="co"># record the indices</span></span>
+<span id="cb11-245"><a href="#cb11-245" aria-hidden="true" tabindex="-1"></a>sens_carbon_maxcarbon <span class="ot">=</span> sensitivity<span class="sc">::</span><span class="fu">tell</span>(sens_carbon,allres<span class="sc">$</span>max_carbon)</span>
+<span id="cb11-246"><a href="#cb11-246" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-247"><a href="#cb11-247" aria-hidden="true" tabindex="-1"></a><span class="co"># First-order indices table</span></span>
+<span id="cb11-248"><a href="#cb11-248" aria-hidden="true" tabindex="-1"></a>first_order_indices <span class="ot">&lt;-</span> sens_carbon_maxcarbon<span class="sc">$</span>S</span>
+<span id="cb11-249"><a href="#cb11-249" aria-hidden="true" tabindex="-1"></a><span class="fu">rownames</span>(first_order_indices) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"ct"</span>, <span class="st">"k"</span>, <span class="st">"r"</span>, <span class="st">"g"</span>)  <span class="co"># Rename rows with variable names</span></span>
+<span id="cb11-250"><a href="#cb11-250" aria-hidden="true" tabindex="-1"></a>kable_first_order <span class="ot">&lt;-</span> <span class="fu">kable</span>(first_order_indices, <span class="at">caption =</span> <span class="st">"First-Order Indices"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb11-251"><a href="#cb11-251" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="st">"striped"</span>, <span class="at">full_width =</span> <span class="cn">FALSE</span>) </span>
+<span id="cb11-252"><a href="#cb11-252" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-253"><a href="#cb11-253" aria-hidden="true" tabindex="-1"></a><span class="co"># Total sensitivity index table</span></span>
+<span id="cb11-254"><a href="#cb11-254" aria-hidden="true" tabindex="-1"></a>total_sensitivity_index <span class="ot">&lt;-</span> sens_carbon_maxcarbon<span class="sc">$</span>T</span>
+<span id="cb11-255"><a href="#cb11-255" aria-hidden="true" tabindex="-1"></a><span class="fu">rownames</span>(total_sensitivity_index) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"ct"</span>, <span class="st">"k"</span>, <span class="st">"r"</span>, <span class="st">"g"</span>)  <span class="co"># Rename rows with variable names</span></span>
+<span id="cb11-256"><a href="#cb11-256" aria-hidden="true" tabindex="-1"></a>kable_total_sensitivity <span class="ot">&lt;-</span> <span class="fu">kable</span>(total_sensitivity_index, <span class="at">caption =</span> <span class="st">"Total Sensitivity Index"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb11-257"><a href="#cb11-257" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="st">"striped"</span>, <span class="at">full_width =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb11-258"><a href="#cb11-258" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-259"><a href="#cb11-259" aria-hidden="true" tabindex="-1"></a><span class="co"># Print the tables</span></span>
+<span id="cb11-260"><a href="#cb11-260" aria-hidden="true" tabindex="-1"></a>kable_first_order</span>
+<span id="cb11-261"><a href="#cb11-261" aria-hidden="true" tabindex="-1"></a>kable_total_sensitivity</span>
+<span id="cb11-262"><a href="#cb11-262" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-263"><a href="#cb11-263" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-264"><a href="#cb11-264" aria-hidden="true" tabindex="-1"></a>Considering the range of parameter variations, a shift exceeding 50% in the maximum carbon levels within the forest becomes apparent. Notably, both the first-order and total sensitivity analyses underscore the significance of the carrying capacity (k) and exponential growth rate (r) as pivotal factors in influencing the extent of variability in maximum carbon levels. Foreseeing the potential impact of climate change on forest dynamics, it is plausible to anticipate alterations in the carrying capacity. For instance, factors such as soil nutrient depletion could curtail the forest's capacity to support tree growth. In light of this scenario, a corresponding decline in the overall carbon content within forests could be anticipated.</span>
+</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+</body></html>
