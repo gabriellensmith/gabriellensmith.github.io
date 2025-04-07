@@ -1,11 +1,11 @@
 ---
 title: "about"
-subtitle: "~a bit more about my journey to where I am today~"
+subtitle: ""
 ---
 
-I grew up in San Diego, California. I moved to Santa Barbara in 2018 to pursue a Bachelor's of Science in Statistics and Data Science. During that time, I experimented, *a lot*, with different educational enthusiasms.
+I grew up in San Diego, California. I moved to Santa Barbara in 2018 to pursue a Bachelor's of Science in Statistics and Data Science. I spent those years exploring a variety of interests - curious about how data, people, and the environment intersect in meaningful ways.
 
-Throughout my life, I have always had a passion for people and the world around us. This passion turned into a career aspiration after a transformative volunteer trip to Thailand with [GIVE Volunteers](https://www.givevolunteers.org/?gclid=CjwKCAjwhJukBhBPEiwAniIcNeMOJ2LlIRyV0-YOr1akd9kVzUru9RmLmzuXNa2iJZ9JHaB3HlmgVxoCOx8QAvD_BwE) in 2019.
+A pivotal moment for me came in 2019 during a volunteer trip to a rural village in Thailand. While there, I helped implement a permaculture system designed to promote long-term sustainability. That experience sparked a deeper committment to environmental stewardship and inspired me to align my career with work that supports both people and the planet. 
 
 :::{.column-margin}
 
@@ -21,7 +21,7 @@ A couple of friends that I made during my time in Thailand!
 
 :::
 
-During my two week experience abroad, I had the opportunity to establish a functional permaculture agricultural system in a remote village in Mueang Kong. For context, permaculture is a holistic design philosophy that promotes sustainable and regenerative farming practices. It strives to maximize productivity while minimizing negative environmental impacts by emulating natural patterns and processes. To learn more about permaculture in agriculture, you can find additional information [here](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8606280/).
+Inspried by that journey, I returned to UCSB to earn my Master's in Environmental Data Science from the Bren School of Environmental Science & Management. It gave me the foundation to bridge technical skill with mission-driven work.
 
 :::{.column-margin}
 
@@ -31,6 +31,6 @@ knitr::include_graphics("images/elephant.png")
 
 :::
 
-I was fascinated by this pursuit of harmony between people and the natural world, and it has since become the driving force behind both my personal and professional goals. Inspired by this experience, I decided to pursue a Master's degree in Environmental Data Science at the University of California, Santa Barbara. This choice allowed me to merge my educational background with my aspiration to contribute to systems that promote the well-being of both people and the planet.
+From 2023 to 2025, I worked as a Geospatial Data Engineer at Climate Engine, where I built and maintained scalable workflows to process environmental data across spatial and temporal dimensions. My work supported projects focused on wildfire, flooding, extreme events, and biodiversity - using tools like Python, BigQuery, and containerized environments to make large-scale geospatial data actionable.
 
-Since then, I have honed a diverse skill set in data science, equipping me with the tools to employ data-driven decision making in addressing environmental challenges in a sustainable and equitable way. My aim is to apply these skills in future career endeavors, working towards a better world that cares for the health of all living beings.
+I'm continuing to seek out meaningful ways to apply data science in service of sustainability, equity, and resilience - whether through building geospatial tools, developing scalable data infrastructure for climate applications, or exploring new technical paths that support environmental and social impact.
