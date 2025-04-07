@@ -13,7 +13,7 @@ website:
         text: posts
       - href: workshops.qmd
         text: workshops
-      - href: GS_CV.pdf
+      - href: GabrielleSmithResume.pdf
         text: cv
       - icon: github
         href: https://github.com/gabriellensmith
