@@ -16,13 +16,12 @@ jobs:
 
       - name: Install R packages
         run: |
-          Rscript -e 'install.packages("pak", repos = "https://cloud.r-project.org")'
-          Rscript -e 'pak::pkg_install(c(
+          Rscript -e 'install.packages(c(
             "rmarkdown", "knitr", "tidyverse", "ggplot2", "janitor", "plotly", "leaps", "MASS",
             "sjPlot", "rstatix", "ggpubr", "gplots", "multcomp", "sna", "kableExtra",
             "readxl", "deSolve", "sensitivity", "rsample", "glmnet", "tidymodels", 
             "pROC", "RColorBrewer", "doParallel", "dials", "yardstick", "xts", "forecast", "GGally", "car"
-          ))'
+          ), repos = "https://cloud.r-project.org")'
 
       - name: Set up Quarto
         uses: quarto-dev/quarto-actions/setup@v2
