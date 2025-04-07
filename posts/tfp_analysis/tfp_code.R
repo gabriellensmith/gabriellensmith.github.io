@@ -14,12 +14,12 @@ library(sna)
 library(kableExtra)
 
 #full data
-tfp_all <- read_excel("/Users/gabriellesmith/MEDS/EDS222/tfp-statistics/AgTFPInternational2020_long.xlsx", sheet = 2) |>
+tfp_all <- read_excel("data/AgTFPInternational2020_long.xlsx", sheet = 2) |>
   clean_names()
 
 
 #data dictionary 
-tfp_dict <- read_excel("/Users/gabriellesmith/MEDS/EDS222/tfp-statistics/AgTFPInternational2020_long.xlsx", sheet = 1, skip = 2)
+tfp_dict <- read_excel("data/AgTFPInternational2020_long.xlsx", sheet = 1, skip = 2)
 
 #world tfp visualization
 tfp_world <- tfp_all |> 
