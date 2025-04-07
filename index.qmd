@@ -15,14 +15,12 @@ about:
       href: https://github.com/gabriellensmith
     - icon: envelope
       text: Email
-      href: mailto::gabriellesmith@ucsb.edu
+      href: mailto::gabrielle.n.smith15@gmail.com
 ---
 
 ## **Welcome!**
 
-I'm Gabrielle, and I am a recent graduate of the Bren School of Environmental Science & Management at the University of California, Santa Barbara with a Master's in Environmental Data Science. I also earned a Statistics and Data Science B.S. from the University of California, Santa Barbara in 2022.
-
-I'm passionate about leveraging remote sensing techniques to address our environmental challenges and climate issues. If you're curious about some of the projects I've worked on, you came to the right place!
+I'm Gabrielle! I'm a geospatial data engineer with a background in environmental data sceince, driven by a passion for applying data and technology to address climate and sustainability challenges. At Climate Engine, I leveraged geospatial analysis to support climate resilience efforts a variety of applications including water, wildfire, extreme weather, and biodiversity. Prior to that, I earned a Master's of Environmental Data Science (MEDS) from the Bren School of Environmental Science & Management at the University of California, Santa Barbara, where I focused on the intersection of data science and environmental problem-solving. I'm eager to continue using my skills to create impactful, equitable solutions for a changing planet.
 
 ------------------------------------------------------------------------
 
