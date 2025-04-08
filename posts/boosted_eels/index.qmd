@@ -95,8 +95,8 @@ boost_rec <- recipe(angaus ~., data = eel_train) |>
   step_dummy(all_nominal(), -all_outcomes(), one_hot = TRUE)
 
 # bake to check recipe
-baked_train <- bake(boost_rec, eel_train) 
-baked_test <- bake(boost_rec, eel_test) 
+# baked_train <- bake(boost_rec, eel_train) 
+# baked_test <- bake(boost_rec, eel_test) 
 ```
 
 ## Tuning XGBoost
