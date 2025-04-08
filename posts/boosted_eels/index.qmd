@@ -92,8 +92,7 @@ Next, we create a recipe to prepape the data for the XGBoost model. For this ana
 # create a recipe 
 boost_rec <- recipe(angaus ~., data = eel_train) |> 
   step_normalize(all_numeric()) |> 
-  step_dummy(all_nominal(), -all_outcomes(), one_hot = TRUE) |> 
-  prep()
+  step_dummy(all_nominal(), -all_outcomes(), one_hot = TRUE)
 
 # bake to check recipe
 baked_train <- bake(boost_rec, eel_train) 
