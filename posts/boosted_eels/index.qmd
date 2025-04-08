@@ -34,7 +34,7 @@ Our data for this analysis, "eel.model.data.csv" were retrived from the suppleme
 ```{r}
 #| include: false
 library(readr)
-eel_data_raw <- read_csv("/Users/gabriellesmith/MEDS/EDS232/labs/eel.model.data.csv") 
+eel_data_raw <- read_csv("eel.model.data.csv") 
 ```
 
 ```{r}
