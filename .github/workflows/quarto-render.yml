@@ -28,7 +28,7 @@ jobs:
             "MASS", "sjPlot", "rstatix", "ggpubr", "gplots", "multcomp", "sna", 
             "kableExtra", "readxl", "deSolve", "sensitivity", "rsample", "glmnet", 
             "tidymodels", "pROC", "RColorBrewer", "doParallel", "dials", "yardstick", 
-            "xts", "forecast", "GGally", "car"
+            "xts", "forecast", "GGally", "car", "lessR", "tsibble", "feasts", "xts", "forecast"
           ))
         shell: Rscript {0}
 
